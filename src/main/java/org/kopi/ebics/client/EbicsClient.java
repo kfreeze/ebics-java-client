@@ -54,7 +54,6 @@ import org.kopi.ebics.interfaces.LetterManager;
 import org.kopi.ebics.interfaces.PasswordCallback;
 import org.kopi.ebics.io.IOUtils;
 import org.kopi.ebics.messages.Messages;
-import org.kopi.ebics.schema.h003.OrderAttributeType;
 import org.kopi.ebics.session.DefaultConfiguration;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
@@ -394,7 +393,6 @@ public class EbicsClient {
      */
     public void sendFile(File file, User user, Product product, EbicsOrderType orderType) throws Exception {
         EbicsSession session = createSession(user, product);
-        OrderAttributeType.Enum orderAttribute = OrderAttributeType.OZHNN;
 
         FileTransfer transferManager = new FileTransfer(session);
 
@@ -402,7 +400,7 @@ public class EbicsClient {
             configuration.getTransferTraceDirectory(user));
 
         try {
-            transferManager.sendFile(IOUtils.getFileContent(file), orderType, orderAttribute);
+            transferManager.sendFile(IOUtils.getFileContent(file), orderType);
         } catch (IOException | EbicsException e) {
             logger
                 .error(messages.getString("upload.file.error", file.getAbsolutePath()), e);

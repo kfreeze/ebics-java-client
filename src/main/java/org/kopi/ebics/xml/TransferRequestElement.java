@@ -25,7 +25,7 @@ import java.security.NoSuchProviderException;
 
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsOrderType;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument;
+import org.kopi.ebics.schema.h005.EbicsRequestDocument;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.utils.Utils;
 
@@ -106,7 +106,7 @@ public abstract class TransferRequestElement extends DefaultEbicsRootElement {
 
   @Override
   public byte[] toByteArray() {
-    setSaveSuggestedPrefixes("http://www.ebics.org/H003", "");
+    setSaveSuggestedPrefixes("http://www.ebics.org/h005", "");
 
     return super.toByteArray();
   }

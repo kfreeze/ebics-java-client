@@ -24,13 +24,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument;
-import org.kopi.ebics.schema.h003.MutableHeaderType;
-import org.kopi.ebics.schema.h003.StaticHeaderType;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Header;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body.TransferReceipt;
+import org.kopi.ebics.schema.h005.EbicsRequestDocument;
+import org.kopi.ebics.schema.h005.MutableHeaderType;
+import org.kopi.ebics.schema.h005.StaticHeaderType;
+import org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest;
+import org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Body;
+import org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Header;
+import org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Body.TransferReceipt;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.utils.Utils;
 
@@ -73,10 +73,7 @@ public class ReceiptRequestElement extends DefaultEbicsRootElement {
     header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
     transferReceipt = EbicsXmlFactory.createTransferReceipt(true, 0);
     body = EbicsXmlFactory.createEbicsRequestBody(transferReceipt);
-    request = EbicsXmlFactory.createEbicsRequest(session.getConfiguration().getRevision(),
-	                                         session.getConfiguration().getVersion(),
-	                                         header,
-	                                         body);
+    request = EbicsXmlFactory.createEbicsRequest(header, body);
     document = EbicsXmlFactory.createEbicsRequestDocument(request);
     signedInfo = new SignedInfo(session.getUser(), getDigest());
     signedInfo.build();
@@ -86,7 +83,7 @@ public class ReceiptRequestElement extends DefaultEbicsRootElement {
 
   @Override
   public byte[] toByteArray() {
-    setSaveSuggestedPrefixes("http://www.ebics.org/H003", "");
+    setSaveSuggestedPrefixes("http://www.ebics.org/h005", "");
 
     return super.toByteArray();
   }

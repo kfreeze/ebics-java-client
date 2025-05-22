@@ -25,14 +25,14 @@ import java.security.NoSuchProviderException;
 import java.util.Calendar;
 
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument;
-import org.kopi.ebics.schema.h003.EmptyMutableHeaderType;
-import org.kopi.ebics.schema.h003.NoPubKeyDigestsRequestStaticHeaderType;
-import org.kopi.ebics.schema.h003.OrderDetailsType;
-import org.kopi.ebics.schema.h003.ProductElementType;
-import org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest;
-import org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body;
-import org.kopi.ebics.schema.h003.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header;
+import org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument;
+import org.kopi.ebics.schema.h005.EmptyMutableHeaderType;
+import org.kopi.ebics.schema.h005.NoPubKeyDigestsRequestStaticHeaderType;
+import org.kopi.ebics.schema.h005.OrderDetailsType;
+import org.kopi.ebics.schema.h005.ProductElementType;
+import org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest;
+import org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body;
+import org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header;
 import org.kopi.ebics.schema.xmldsig.SignatureType;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
@@ -99,29 +99,29 @@ public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
     OrderDetailsType 				orderDetails;
 
     product = EbicsXmlFactory.creatProductElementType(session.getProduct().getLanguage(), session.getProduct().getName());
-    orderDetails = EbicsXmlFactory.createOrderDetailsType("DZHNN", null, OrderType.HPB.getCode());
+    orderDetails = EbicsXmlFactory.createOrderDetailsType(OrderType.HPB.getCode());
     xstatic = EbicsXmlFactory.createNoPubKeyDigestsRequestStaticHeaderType(session.getBankID(),
-	                                                                   Utils.generateNonce(),
-	                                                                   Calendar.getInstance(),
-	                                                                   session.getUser().getPartner().getPartnerId(),
-	                                                                   session.getUser().getUserId(),
-	                                                                   product,
-	                                                                   orderDetails,
-	                                                                   session.getUser().getSecurityMedium());
+            Utils.generateNonce(),
+            Calendar.getInstance(),
+            session.getUser().getPartner().getPartnerId(),
+            session.getUser().getUserId(),
+            product,
+            orderDetails,
+            session.getUser().getSecurityMedium());
     mutable = EbicsXmlFactory.createEmptyMutableHeaderType();
     header = EbicsXmlFactory.createDigestsRequestHeader(true, mutable, xstatic);
     body = EbicsXmlFactory.createDigestsRequestBody();
     request = EbicsXmlFactory.createEbicsNoPubKeyDigestsRequest(session.getConfiguration().getRevision(),
-	                                                        session.getConfiguration().getVersion(),
-	                                                        header,
-	                                                        body);
+            session.getConfiguration().getVersion(),
+            header,
+            body);
     document = EbicsXmlFactory.createEbicsNoPubKeyDigestsRequestDocument(request);
   }
 
   @Override
   public byte[] toByteArray() {
     setSaveSuggestedPrefixes("http://www.w3.org/2000/09/xmldsig#", "ds");
-    setSaveSuggestedPrefixes("http://www.ebics.org/H003", "");
+    setSaveSuggestedPrefixes("http://www.ebics.org/h005", "");
 
     return super.toByteArray();
   }

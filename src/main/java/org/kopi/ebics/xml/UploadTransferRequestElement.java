@@ -23,14 +23,14 @@ import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.interfaces.EbicsOrderType;
 import org.kopi.ebics.io.IOUtils;
-import org.kopi.ebics.schema.h003.DataTransferRequestType;
-import org.kopi.ebics.schema.h003.DataTransferRequestType.OrderData;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Header;
-import org.kopi.ebics.schema.h003.MutableHeaderType;
-import org.kopi.ebics.schema.h003.MutableHeaderType.SegmentNumber;
-import org.kopi.ebics.schema.h003.StaticHeaderType;
+import org.kopi.ebics.schema.h005.DataTransferRequestType;
+import org.kopi.ebics.schema.h005.DataTransferRequestType.OrderData;
+import org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest;
+import org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Body;
+import org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Header;
+import org.kopi.ebics.schema.h005.MutableHeaderType;
+import org.kopi.ebics.schema.h005.MutableHeaderType.SegmentNumber;
+import org.kopi.ebics.schema.h005.StaticHeaderType;
 import org.kopi.ebics.session.EbicsSession;
 
 /**
@@ -80,10 +80,7 @@ public class UploadTransferRequestElement extends TransferRequestElement {
     orderData = EbicsXmlFactory.createEbicsRequestOrderData(IOUtils.getFactoryContent(content));
     dataTransfer = EbicsXmlFactory.createDataTransferRequestType(orderData);
     body = EbicsXmlFactory.createEbicsRequestBody(dataTransfer);
-    request = EbicsXmlFactory.createEbicsRequest(session.getConfiguration().getRevision(),
-	                                         session.getConfiguration().getVersion(),
-	                                         header,
-	                                         body);
+    request = EbicsXmlFactory.createEbicsRequest(header, body);
     document = EbicsXmlFactory.createEbicsRequestDocument(request);
   }
 

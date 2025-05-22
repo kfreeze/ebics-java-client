@@ -25,22 +25,31 @@ import org.kopi.ebics.interfaces.EbicsOrderType;
  * A BCS order type.
  *
  * @author Pierre Ducroquet
- *
  */
 public enum OrderType implements EbicsOrderType {
+    // -- Administrative / Initialization --
     HIA,
     HAA,
     HKD,
     HPB,
     HPD,
     HTD,
+    HCA,
+    HCS,
+    HEV,
+    HVD,
+    HVE,
+    HVS,
+    HVT,
+    HVU,
+    HVZ,
+    H3K,
     INI,
-    FUL,
-    FDL,
     SPR,
-    AZV,
-    C2C,
-    CCC,
+    PUB,
+
+    // -- Upload Order Types --
+    FUL,
     CCT,
     CCU,
     CD1,
@@ -49,19 +58,36 @@ public enum OrderType implements EbicsOrderType {
     CDD,
     DTE,
     EUE,
-    HAC,
-    PTK,
+    AZV,
+    CCC,
+    C2C,
+    XCT,
+    XE2,
+
+    // -- Download Order Types --
+    FDL,
     STA,
     VMK,
     ZDF,
     ZB6,
     Z01,
-    XKD,
-    XE2,
-    XCT,
     C52,
     C53,
-    C54;
+    C54,
+    Z53,
+    Z54,
+
+    // -- File Management (3.0 / extended types) --
+    UPL,
+    DNL,
+    BTU,
+    BTD,
+
+    // -- Technical / Special --
+    PTK,
+    HAC,
+    XKD;
+
 
     @Override
     public String getCode() {

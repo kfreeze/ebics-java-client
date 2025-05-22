@@ -21,12 +21,12 @@ package org.kopi.ebics.xml;
 
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.EbicsOrderType;
-import org.kopi.ebics.schema.h003.MutableHeaderType;
-import org.kopi.ebics.schema.h003.StaticHeaderType;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Body;
-import org.kopi.ebics.schema.h003.EbicsRequestDocument.EbicsRequest.Header;
-import org.kopi.ebics.schema.h003.MutableHeaderType.SegmentNumber;
+import org.kopi.ebics.schema.h005.EbicsRequestDocument;
+import org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Body;
+import org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Header;
+import org.kopi.ebics.schema.h005.MutableHeaderType;
+import org.kopi.ebics.schema.h005.MutableHeaderType.SegmentNumber;
+import org.kopi.ebics.schema.h005.StaticHeaderType;
 import org.kopi.ebics.session.EbicsSession;
 
 /**
@@ -57,7 +57,7 @@ public class DownloadTransferRequestElement extends TransferRequestElement {
 
   @Override
   public void buildTransfer() throws EbicsException {
-    EbicsRequest			request;
+    EbicsRequestDocument.EbicsRequest request;
     Header 				header;
     Body				body;
     MutableHeaderType 			mutable;
@@ -69,10 +69,7 @@ public class DownloadTransferRequestElement extends TransferRequestElement {
     xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(), transactionId);
     header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
     body = EbicsXmlFactory.createEbicsRequestBody();
-    request = EbicsXmlFactory.createEbicsRequest(session.getConfiguration().getRevision(),
-        				         session.getConfiguration().getVersion(),
-	                                         header,
-	                                         body);
+    request = EbicsXmlFactory.createEbicsRequest(header, body);
     document = EbicsXmlFactory.createEbicsRequestDocument(request);
   }
 

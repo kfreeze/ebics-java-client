@@ -21,8 +21,8 @@ package org.kopi.ebics.xml;
 
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
-import org.kopi.ebics.schema.h003.HPBResponseOrderDataDocument;
-import org.kopi.ebics.schema.h003.HPBResponseOrderDataType;
+import org.kopi.ebics.schema.h005.HPBResponseOrderDataDocument;
+import org.kopi.ebics.schema.h005.HPBResponseOrderDataType;
 
 /**
  * The <code>HPBResponseOrderDataElement</code> contains the public bank
@@ -59,22 +59,6 @@ public class HPBResponseOrderDataElement extends DefaultResponseElement {
     return response.getEncryptionPubKeyInfo().getX509Data().getX509CertificateArray(0);
   }
 
-  public byte[] getBankE002PublicKeyModulus() {
-      return response.getEncryptionPubKeyInfo().getPubKeyValue().getRSAKeyValue().getModulus();
-  }
-
-  public byte[] getBankE002PublicKeyExponent() {
-      return response.getEncryptionPubKeyInfo().getPubKeyValue().getRSAKeyValue().getExponent();
-  }
-
-  public byte[] getBankX002PublicKeyModulus() {
-      return response.getAuthenticationPubKeyInfo().getPubKeyValue().getRSAKeyValue().getModulus();
-  }
-
-  public byte[] getBankX002PublicKeyExponent() {
-      return response.getAuthenticationPubKeyInfo().getPubKeyValue().getRSAKeyValue().getExponent();
-  }
-
   @Override
   public void build() throws EbicsException {
     parse(factory);
@@ -90,6 +74,6 @@ public class HPBResponseOrderDataElement extends DefaultResponseElement {
   // DATA MEMBERS
   // --------------------------------------------------------------------
 
-  private HPBResponseOrderDataType	response;
+  private HPBResponseOrderDataType response;
   private static final long 		serialVersionUID = -1305363936881364049L;
 }

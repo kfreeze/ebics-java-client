@@ -22,8 +22,7 @@ package org.kopi.ebics.xml;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.ReturnCode;
 import org.kopi.ebics.interfaces.ContentFactory;
-import org.kopi.ebics.schema.h003.EbicsKeyManagementResponseDocument;
-import org.kopi.ebics.schema.h003.EbicsKeyManagementResponseDocument.EbicsKeyManagementResponse;
+import org.kopi.ebics.schema.h005.EbicsKeyManagementResponseDocument;
 
 /**
  * The <code>KeyManagementResponseElement</code> is the common element
@@ -80,6 +79,6 @@ public class KeyManagementResponseElement extends DefaultResponseElement {
   // DATA MEMBERS
   // --------------------------------------------------------------------
 
-  private EbicsKeyManagementResponse	response;
+  private EbicsKeyManagementResponseDocument.EbicsKeyManagementResponse response;
   private static final long 		serialVersionUID = -3556995397305708927L;
 }

@@ -22,9 +22,8 @@ package org.kopi.ebics.xml;
 import java.util.Calendar;
 
 import org.kopi.ebics.exception.EbicsException;
-import org.kopi.ebics.schema.s001.PubKeyValueType;
-import org.kopi.ebics.schema.s001.SignaturePubKeyInfoType;
-import org.kopi.ebics.schema.s001.SignaturePubKeyOrderDataType;
+import org.kopi.ebics.schema.s002.SignaturePubKeyInfoType;
+import org.kopi.ebics.schema.s002.SignaturePubKeyOrderDataType;
 import org.kopi.ebics.schema.xmldsig.RSAKeyValueType;
 import org.kopi.ebics.schema.xmldsig.X509DataType;
 import org.kopi.ebics.session.EbicsSession;
@@ -51,19 +50,13 @@ public class SignaturePubKeyOrderDataElement extends DefaultEbicsRootElement {
   public void build() throws EbicsException {
     SignaturePubKeyInfoType		signaturePubKeyInfo;
     X509DataType 			x509Data;
-    RSAKeyValueType 			rsaKeyValue;
-    PubKeyValueType 			pubKeyValue;
     SignaturePubKeyOrderDataType	signaturePubKeyOrderData;
 
     x509Data = null;
     if (session.getUser().getPartner().getBank().useCertificate())
         x509Data = EbicsXmlFactory.createX509DataType(session.getUser().getDN(),
 	                                          session.getUser().getA005Certificate());
-    rsaKeyValue = EbicsXmlFactory.createRSAKeyValueType(session.getUser().getA005PublicKey().getPublicExponent().toByteArray(),
-	                                                session.getUser().getA005PublicKey().getModulus().toByteArray());
-    pubKeyValue = EbicsXmlFactory.createPubKeyValueType(rsaKeyValue, Calendar.getInstance());
     signaturePubKeyInfo = EbicsXmlFactory.createSignaturePubKeyInfoType(x509Data,
-	                                                                pubKeyValue,
 	                                                                session.getConfiguration().getSignatureVersion());
     signaturePubKeyOrderData = EbicsXmlFactory.createSignaturePubKeyOrderData(signaturePubKeyInfo,
 									      session.getUser().getPartner().getPartnerId(),
