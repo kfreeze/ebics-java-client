@@ -39,6 +39,15 @@ public class EbicsException extends Exception {
   public EbicsException(String message) {
     super(message);
   }
+
+  /**
+   * A means to construct a server error with an additional message.
+   * @param message the exception message
+   * @param cause the exception cause
+   */
+  public EbicsException(String message, Throwable cause) {
+    super(message, cause);
+  }
   /**
    * A means to construct a server error with no additional message.
    * @param returnCode the ebics return code.

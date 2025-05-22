@@ -1,10 +1,7 @@
 package org.kopi.ebics.client;
 
 
-/**
- * @author : Kilian Frieß
- * @since : 20.05.25, Tue
- **/
+
 public class UploadService implements IEbicsService {
 
     @Override
