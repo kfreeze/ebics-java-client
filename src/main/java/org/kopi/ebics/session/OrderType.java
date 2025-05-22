@@ -48,35 +48,6 @@ public enum OrderType implements EbicsOrderType {
     SPR,
     PUB,
 
-    // -- Upload Order Types --
-    FUL,
-    CCT,
-    CCU,
-    CD1,
-    CDB,
-    CDC,
-    CDD,
-    DTE,
-    EUE,
-    AZV,
-    CCC,
-    C2C,
-    XCT,
-    XE2,
-
-    // -- Download Order Types --
-    FDL,
-    STA,
-    VMK,
-    ZDF,
-    ZB6,
-    Z01,
-    C52,
-    C53,
-    C54,
-    Z53,
-    Z54,
-
     // -- File Management (3.0 / extended types) --
     UPL,
     DNL,

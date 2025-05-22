@@ -59,7 +59,7 @@ class SplitterTest {
         EbicsSession ebicsSession = Mockito.mock(EbicsSession.class, Mockito.RETURNS_DEEP_STUBS);
 
         UploadTransferRequestElement uploader = new UploadTransferRequestElement(ebicsSession,
-                OrderType.CDD,
+                OrderType.BTU,
                 1,
                 false,
                 "asda".getBytes(),

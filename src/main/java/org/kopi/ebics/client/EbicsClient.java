@@ -599,22 +599,10 @@ public class EbicsClient {
         addOption(options, OrderType.HPB, "Send HPB request");
         options.addOption(null, "letters", false, "Create INI Letters");
         options.addOption(null, "create", false, "Create and initialize EBICS user");
-        addOption(options, OrderType.STA,"Fetch STA file (MT940 file)");
-        addOption(options, OrderType.VMK, "Fetch VMK file (MT942 file)");
-        addOption(options, OrderType.C52, "Fetch camt.052 file");
-        addOption(options, OrderType.C53, "Fetch camt.053 file");
-        addOption(options, OrderType.C54, "Fetch camt.054 file");
-        addOption(options, OrderType.ZDF, "Fetch ZDF file (zip file with documents)");
-        addOption(options, OrderType.ZB6, "Fetch ZB6 file");
         addOption(options, OrderType.PTK, "Fetch client protocol file (TXT)");
         addOption(options, OrderType.HAC, "Fetch client protocol file (XML)");
-        addOption(options, OrderType.Z01, "Fetch Z01 file");
 
         addOption(options, OrderType.XKD, "Send payment order file (DTA format)");
-        addOption(options, OrderType.FUL, "Send payment order file (any format)");
-        addOption(options, OrderType.XCT, "Send XCT file (any format)");
-        addOption(options, OrderType.XE2, "Send XE2 file (any format)");
-        addOption(options, OrderType.CCT, "Send CCT file (any format)");
 
         options.addOption(null, "skip_order", true, "Skip a number of order ids");
 
@@ -651,9 +639,7 @@ public class EbicsClient {
         String outputFileValue = cmd.getOptionValue("o");
         String inputFileValue = cmd.getOptionValue("i");
 
-        List<? extends EbicsOrderType> fetchFileOrders = Arrays.asList(OrderType.STA, OrderType.VMK,
-            OrderType.C52, OrderType.C53, OrderType.C54,
-            OrderType.ZDF, OrderType.ZB6, OrderType.PTK, OrderType.HAC, OrderType.Z01);
+        List<? extends EbicsOrderType> fetchFileOrders = Arrays.asList(OrderType.PTK, OrderType.HAC);
 
         for (EbicsOrderType type : fetchFileOrders) {
             if (hasOption(cmd, type)) {
@@ -663,8 +649,7 @@ public class EbicsClient {
             }
         }
 
-        List<? extends EbicsOrderType> sendFileOrders = Arrays.asList(OrderType.XKD, OrderType.FUL, OrderType.XCT,
-            OrderType.XE2, OrderType.CCT);
+        List<? extends EbicsOrderType> sendFileOrders = Arrays.asList(OrderType.XKD);
         for (EbicsOrderType type : sendFileOrders) {
             if (hasOption(cmd, type)) {
                 client.sendFile(new File(inputFileValue), client.defaultUser,
