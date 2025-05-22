@@ -1,7 +1,6 @@
 <xb:config xmlns:xb="http://xml.apache.org/xmlbeans/2004/02/xbean/config"
 	       xmlns:H000="http://www.ebics.org/H000"
            xmlns:H005="urn:org:ebics:H005"
-           xmlns:p008="urn:iso:std:iso:20022:tech:xsd:pain.008.001.08"
 	       xmlns:DSIG="http://www.w3.org/2000/09/xmldsig#"
 	       xmlns:S002="http://www.ebics.org/S002"
 	       >
@@ -13,11 +12,6 @@
   <xb:namespace uri="urn:org:ebics:H005">
     <xb:package>org.kopi.ebics.schema.h005</xb:package>
   </xb:namespace>
-
-  <xb:namespace uri="urn:iso:std:iso:20022:tech:xsd:pain.008.001.08">
-    <xb:package>org.kopi.ebics.schema.pain.008.001.08</xb:package>
-  </xb:namespace>
-
 
   <xb:namespace uri="http://www.w3.org/2000/09/xmldsig#">
     <xb:package>org.kopi.ebics.schema.xmldsig</xb:package>
