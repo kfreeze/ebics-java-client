@@ -38,56 +38,53 @@ import org.kopi.ebics.session.EbicsSession;
  * for all ebics upload transfers.
  *
  * @author Hachani
- *
  */
 public class UploadTransferRequestElement extends TransferRequestElement {
 
-  /**
-   * Constructs a new <code>UTransferRequestElement</code> for ebics upload transfer.
-   * @param session the current ebics session
-   * @param orderType the upload order type
-   * @param segmentNumber the segment number
-   * @param lastSegment is it the last segment?
-   * @param transactionId the transaction ID
-   * @param content the content factory
-   */
-  public UploadTransferRequestElement(EbicsSession session,
-                                 EbicsOrderType orderType,
-                                 int segmentNumber,
-                                 boolean lastSegment,
-                                 byte[] transactionId,
-                                 ContentFactory content)
-  {
-    super(session, generateName(orderType), orderType, segmentNumber, lastSegment, transactionId);
-    this.content = content;
-  }
 
-  @Override
-  public void buildTransfer() throws EbicsException {
-    EbicsRequest			request;
-    Header 				header;
-    Body				body;
-    MutableHeaderType 			mutable;
-    SegmentNumber			segmentNumber;
-    StaticHeaderType 			xstatic;
-    OrderData 				orderData;
-    DataTransferRequestType 		dataTransfer;
+    private static final long serialVersionUID = 8465397978597444978L;
+    private final ContentFactory content;
 
-    segmentNumber = EbicsXmlFactory.createSegmentNumber(this.segmentNumber, lastSegment);
-    mutable = EbicsXmlFactory.createMutableHeaderType("Transfer", segmentNumber);
-    xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(), transactionId);
-    header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
-    orderData = EbicsXmlFactory.createEbicsRequestOrderData(IOUtils.getFactoryContent(content));
-    dataTransfer = EbicsXmlFactory.createDataTransferRequestType(orderData);
-    body = EbicsXmlFactory.createEbicsRequestBody(dataTransfer);
-    request = EbicsXmlFactory.createEbicsRequest(header, body);
-    document = EbicsXmlFactory.createEbicsRequestDocument(request);
-  }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    /**
+     * Constructs a new <code>UTransferRequestElement</code> for ebics upload transfer.
+     *
+     * @param session       the current ebics session
+     * @param orderType     the upload order type
+     * @param segmentNumber the segment number
+     * @param lastSegment   is it the last segment?
+     * @param transactionId the transaction ID
+     * @param content       the content factory
+     */
+    public UploadTransferRequestElement(EbicsSession session,
+                                        EbicsOrderType orderType,
+                                        int segmentNumber,
+                                        boolean lastSegment,
+                                        byte[] transactionId,
+                                        ContentFactory content) {
+        super(session, generateName(orderType), orderType, segmentNumber, lastSegment, transactionId);
+        this.content = content;
+    }
 
-  private ContentFactory		content;
-  private static final long 		serialVersionUID = 8465397978597444978L;
+    @Override
+    public void buildTransfer() throws EbicsException {
+        EbicsRequest request;
+        Header header;
+        Body body;
+        MutableHeaderType mutable;
+        SegmentNumber segmentNumber;
+        StaticHeaderType xstatic;
+        OrderData orderData;
+        DataTransferRequestType dataTransfer;
+
+        segmentNumber = EbicsXmlFactory.createSegmentNumber(this.segmentNumber, lastSegment);
+        mutable = EbicsXmlFactory.createMutableHeaderType("Transfer", segmentNumber);
+        xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(), transactionId);
+        header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
+        orderData = EbicsXmlFactory.createEbicsRequestOrderData(IOUtils.getFactoryContent(content));
+        dataTransfer = EbicsXmlFactory.createDataTransferRequestType(orderData);
+        body = EbicsXmlFactory.createEbicsRequestBody(dataTransfer);
+        request = EbicsXmlFactory.createEbicsRequest(header, body);
+        document = EbicsXmlFactory.createEbicsRequestDocument(request);
+    }
 }

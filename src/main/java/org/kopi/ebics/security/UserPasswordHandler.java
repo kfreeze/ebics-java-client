@@ -26,33 +26,30 @@ import org.kopi.ebics.interfaces.PasswordCallback;
  * from the user id and a simple suffix.
  *
  * @author hachani
- *
  */
 public class UserPasswordHandler implements PasswordCallback {
 
-  /**
-   * Creates a new user password handler from a given user id
-   * and a given suffix.
-   * @param userId the user id.
-   * @param suffix the user suffix.
-   */
-  public UserPasswordHandler(String userId, String suffix) {
-    this.userId = userId;
-    this.suffix = suffix;
-  }
+    private final String userId;
+    private final String suffix;
 
-  @Override
-  public char[] getPassword() {
-    String		pwd;
 
-    pwd = userId + suffix;
-    return pwd.toCharArray();
-  }
+    /**
+     * Creates a new user password handler from a given user id
+     * and a given suffix.
+     *
+     * @param userId the user id.
+     * @param suffix the user suffix.
+     */
+    public UserPasswordHandler(String userId, String suffix) {
+        this.userId = userId;
+        this.suffix = suffix;
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    @Override
+    public char[] getPassword() {
+        String pwd;
 
-  private String		userId;
-  private String		suffix;
+        pwd = userId + suffix;
+        return pwd.toCharArray();
+    }
 }

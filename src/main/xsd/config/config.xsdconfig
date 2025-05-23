@@ -13,6 +13,10 @@
     <xb:package>org.kopi.ebics.schema.h005</xb:package>
   </xb:namespace>
 
+    <xb:namespace uri="urn:iso:std:iso:20022:tech:xsd:pain.008.001.08">
+      <xb:package>iso.std.iso._20022.tech.xsd.pain_008_001</xb:package>
+    </xb:namespace>
+
   <xb:namespace uri="http://www.w3.org/2000/09/xmldsig#">
     <xb:package>org.kopi.ebics.schema.xmldsig</xb:package>
   </xb:namespace>

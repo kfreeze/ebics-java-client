@@ -25,75 +25,71 @@ import java.io.Serializable;
  * Optional information about the client product.
  *
  * @author Hachani
- *
  */
 public class Product implements Serializable {
 
-  /**
-   * Creates a new product information element.
-   * @param name this is the name of the product. It is a mandatory field.
-   * @param language this is the language. If you use null, the language of the default locale is used.
-   * @param instituteID the institute, this is an optional value, you can leave this parameter empty.
-   */
-  public Product(String name,
-                 String language,
-                 String instituteID)
-  {
-    this.name = name;
-    this.language = language;
-    this.instituteID = instituteID;
-  }
+    private static final long serialVersionUID = 6400195827756653241L;
 
-  /**
-   * @return the name
-   */
-  public String getName() {
-    return name;
-  }
+    private transient String name;
+    private String language;
+    private String instituteID;
 
-  /**
-   * @param name the name to set
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
+    /**
+     * Creates a new product information element.
+     *
+     * @param name        this is the name of the product. It is a mandatory field.
+     * @param language    this is the language. If you use null, the language of the default locale is used.
+     * @param instituteID the institute, this is an optional value, you can leave this parameter empty.
+     */
+    public Product(String name,
+                   String language,
+                   String instituteID) {
+        this.name = name;
+        this.language = language;
+        this.instituteID = instituteID;
+    }
 
-  /**
-   * @return the language
-   */
-  public String getLanguage() {
-    return language;
-  }
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
 
-  /**
-   * @param language the language to set
-   */
-  public void setLanguage(String language) {
-    this.language = language;
-  }
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 
-  /**
-   * @return the instituteID
-   */
-  public String getInstituteID() {
-    return instituteID;
-  }
 
-  /**
-   * @param instituteID the instituteID to set
-   */
-  public void setInstituteID(String instituteID) {
-    this.instituteID = instituteID;
-  }
+    /**
+     * @return the language
+     */
+    public String getLanguage() {
+        return language;
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    /**
+     * @param language the language to set
+     */
+    public void setLanguage(String language) {
+        this.language = language;
+    }
 
-  private transient String	name;
-  private String		language;
-  private String		instituteID;
+    /**
+     * @return the instituteID
+     */
+    public String getInstituteID() {
+        return instituteID;
+    }
 
-  private static final long 	serialVersionUID = 6400195827756653241L;
+    /**
+     * @param instituteID the instituteID to set
+     */
+    public void setInstituteID(String instituteID) {
+        this.instituteID = instituteID;
+    }
 
 }

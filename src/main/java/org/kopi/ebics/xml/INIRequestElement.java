@@ -29,51 +29,49 @@ import org.kopi.ebics.utils.Utils;
  * to the ebics server to initiate the signature certificate.
  *
  * @author hachani
- *
  */
 public class INIRequestElement extends DefaultEbicsRootElement {
 
-  /**
-   * Constructs a new INI request element.
-   * @param session the ebics session.
-   */
-  public INIRequestElement(EbicsSession session) {
-    super(session);
-  }
 
-  @Override
-  public String getName() {
-    return "INIRequest.xml";
-  }
+    private static final long serialVersionUID = -1966559247739923555L;
+    private UnsecuredRequestElement unsecuredRequest;
 
-  @Override
-  public void build() throws EbicsException {
-    SignaturePubKeyOrderDataElement		signaturePubKey;
+    /**
+     * Constructs a new INI request element.
+     *
+     * @param session the ebics session.
+     */
+    public INIRequestElement(EbicsSession session) {
+        super(session);
+    }
 
-    signaturePubKey = new SignaturePubKeyOrderDataElement(session);
-    signaturePubKey.build();
-    unsecuredRequest = new UnsecuredRequestElement(session,
-	                                           OrderType.INI,
-	                                           Utils.zip(signaturePubKey.prettyPrint()));
-    unsecuredRequest.build();
-  }
+    @Override
+    public String getName() {
+        return "INIRequest.xml";
+    }
 
-  @Override
-  public byte[] toByteArray() {
-    setSaveSuggestedPrefixes("http://www.ebics.org/H003", "");
+    @Override
+    public void build() throws EbicsException {
+        SignaturePubKeyOrderDataElement signaturePubKey;
 
-    return unsecuredRequest.toByteArray();
-  }
+        signaturePubKey = new SignaturePubKeyOrderDataElement(session);
+        signaturePubKey.build();
+        unsecuredRequest = new UnsecuredRequestElement(session,
+                OrderType.INI,
+                Utils.zip(signaturePubKey.prettyPrint()));
+        unsecuredRequest.build();
+    }
 
-  @Override
-  public void validate() throws EbicsException {
-    unsecuredRequest.validate();
-  }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    @Override
+    public byte[] toByteArray() {
+        setSaveSuggestedPrefixes("http://www.ebics.org/H003", "");
 
-  private UnsecuredRequestElement	unsecuredRequest;
-  private static final long 		serialVersionUID = -1966559247739923555L;
+        return unsecuredRequest.toByteArray();
+    }
+
+    @Override
+    public void validate() throws EbicsException {
+        unsecuredRequest.validate();
+    }
 }

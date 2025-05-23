@@ -33,42 +33,52 @@ import org.kopi.ebics.interfaces.ContentFactory;
  * all ebics server responses.
  *
  * @author Hachani
- *
  */
 public abstract class DefaultResponseElement extends DefaultEbicsRootElement {
 
-  /**
-   * Constructs a new ebics response element.
-   * @param factory the content factory containing the response.
-   * @param name the element name
-   */
-  public DefaultResponseElement(ContentFactory factory, String name) {
-    this.factory = factory;
-    this.name = name;
-  }
+    private static final long serialVersionUID = 4014595046719645090L;
 
-  /**
-   * Parses the content of a <code>ContentFactory</code>
-   * @param factory the content factory
-   * @throws EbicsException parse error
-   */
-  protected void parse(ContentFactory factory) throws EbicsException {
-    try {
-      document = XmlObject.Factory.parse(factory.getContent());
-    } catch (XmlException e) {
-      throw new EbicsException(e.getMessage());
-    } catch (IOException e) {
-      throw new EbicsException(e.getMessage());
+    private final String name;
+    protected ContentFactory factory;
+    protected ReturnCode
+            returnCode;
+
+    /**
+     * Constructs a new ebics response element.
+     *
+     * @param factory the content factory containing the response.
+     * @param name    the element name
+     */
+    public DefaultResponseElement(ContentFactory factory, String name) {
+        this.factory = factory;
+        this.name = name;
     }
-  }
 
-  /**
-   * Reports the return code to the user.
-   * @throws EbicsException request fails.
-   */
-  public void report() throws EbicsException {
-    checkReturnCode(returnCode);
-  }
+
+    /**
+     * Parses the content of a <code>ContentFactory</code>
+     *
+     * @param factory the content factory
+     * @throws EbicsException parse error
+     */
+    protected void parse(ContentFactory factory) throws EbicsException {
+        try {
+            document = XmlObject.Factory.parse(factory.getContent());
+        } catch (XmlException e) {
+            throw new EbicsException(e.getMessage(), e);
+        } catch (IOException e) {
+            throw new EbicsException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Reports the return code to the user.
+     *
+     * @throws EbicsException request fails.
+     */
+    public void report() throws EbicsException {
+        checkReturnCode(returnCode);
+    }
 
   protected void checkReturnCode(ReturnCode returnCode) throws EbicsException {
     if (!returnCode.isOk()) {
@@ -76,17 +86,8 @@ public abstract class DefaultResponseElement extends DefaultEbicsRootElement {
     }
 }
 
-  @Override
-  public String getName() {
-    return name + ".xml";
-  }
-
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
-
-  private String 			name;
-  protected ContentFactory		factory;
-  protected ReturnCode			returnCode;
-  private static final long 		serialVersionUID = 4014595046719645090L;
+    @Override
+    public String getName() {
+        return name + ".xml";
+    }
 }

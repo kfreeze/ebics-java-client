@@ -1,17 +1,10 @@
-package org.kopi.ebics.document;
+package org.kopi.ebics.document.upload;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 
 public class StatementEntry {
-
-    public enum DebitIdentifier {
-        CREDIT,
-        DEBIT,
-        CANCELLATION_DEBIT,
-        CANCELLATION_CREDIT
-    }
 
     private LocalDate valueDate;
     private DebitIdentifier debitIdentifier;
@@ -92,5 +85,12 @@ public class StatementEntry {
 
     public void setAccountDesignation(String accountDesignation) {
         this.accountDesignation = accountDesignation;
+    }
+
+    public enum DebitIdentifier {
+        CREDIT,
+        DEBIT,
+        CANCELLATION_DEBIT,
+        CANCELLATION_CREDIT
     }
 }

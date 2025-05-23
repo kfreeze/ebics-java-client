@@ -1,4 +1,4 @@
-package org.kopi.ebics.document.cdd;
+package org.kopi.ebics.document.upload.cdd;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -7,29 +7,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import org.kopi.ebics.document.MandateType;
-import org.kopi.ebics.document.SepaStringSanitizer;
-import org.kopi.ebics.document.SepaUtil;
+import org.kopi.ebics.document.upload.MandateType;
+import org.kopi.ebics.document.upload.SepaStringSanitizer;
+import org.kopi.ebics.document.upload.SepaUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.SepaValidationException;
 
 public class DirectDebitDocumentData {
 
-    private String creditorBic;
-
-    private String creditorIban;
-
-    private String creditorIdentifier;
-
-    private String creditorName;
-
-    private String documentMessageId;
-
     private final List<DirectDebitPayment> payments = new ArrayList<>();
-
-    public String toXml() throws EbicsException {
-        return DirectDebitDocumentBuilder.toXml(this);
-    }
+    private String creditorBic;
+    private String creditorIban;
+    private String creditorIdentifier;
+    private String creditorName;
+    private String documentMessageId;
 
     public DirectDebitDocumentData() {
     }
@@ -40,6 +31,10 @@ public class DirectDebitDocumentData {
         setCreditorIdentifier(creditorCreditorIdentifier);
         setCreditorName(creditorName);
         setDocumentMessageId(documentMessageId);
+    }
+
+    public String toXml() throws EbicsException {
+        return DirectDebitDocumentBuilder.toXml(this);
     }
 
     public Date getDueDateByMandateType(MandateType mandateType) {

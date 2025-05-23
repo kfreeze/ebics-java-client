@@ -47,126 +47,126 @@ import org.w3c.dom.Node;
  * performing signature for signed ebics requests
  *
  * @author hachani
- *
  */
 public class SignedInfo extends DefaultEbicsRootElement {
 
-  /**
-   * Constructs a new <code>SignedInfo</code> element
-   * @param digest the digest value
-   */
-  public SignedInfo(EbicsUser user, byte[] digest) {
-    this.user = user;
-    this.digest = digest;
-  }
 
-  @Override
-  public void build() throws EbicsException {
-    CanonicalizationMethodType 	canonicalizationMethod;
-    SignatureMethodType 	signatureMethod;
-    ReferenceType 		reference;
-    TransformsType 		transforms;
-    DigestMethodType 		digestMethod;
-    TransformType 		transform;
-    SignedInfoType		signedInfo;
+    private static final long serialVersionUID = 4194924578678778580L;
+    private final byte[] digest;
+    private final EbicsUser user;
 
-    if (digest == null) {
-      throw new EbicsException("digest value cannot be null");
+    /**
+     * Constructs a new <code>SignedInfo</code> element
+     *
+     * @param digest the digest value
+     */
+    public SignedInfo(EbicsUser user, byte[] digest) {
+        this.user = user;
+        this.digest = digest;
     }
 
-    transform = EbicsXmlFactory.createTransformType(Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS);
-    digestMethod = EbicsXmlFactory.createDigestMethodType("http://www.w3.org/2001/04/xmlenc#sha256");
-    transforms = EbicsXmlFactory.createTransformsType(new TransformType[] {transform});
-    reference = EbicsXmlFactory.createReferenceType("#xpointer(//*[@authenticate='true'])",
-	                                            transforms,
-	                                            digestMethod,
-	                                            digest);
-    signatureMethod = EbicsXmlFactory.createSignatureMethodType("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
-    canonicalizationMethod = EbicsXmlFactory.createCanonicalizationMethodType(Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS);
-    signedInfo = EbicsXmlFactory.createSignedInfoType(canonicalizationMethod,
-	                                              signatureMethod,
-	                                              new ReferenceType[] {reference});
+    @Override
+    public void build() throws EbicsException {
+        CanonicalizationMethodType canonicalizationMethod;
+        SignatureMethodType signatureMethod;
+        ReferenceType reference;
+        TransformsType transforms;
+        DigestMethodType digestMethod;
+        TransformType transform;
+        SignedInfoType signedInfo;
 
-    document = EbicsXmlFactory.createSignatureType(signedInfo);
-  }
+        if (digest == null) {
+            throw new EbicsException("digest value cannot be null");
+        }
 
-  /**
-   * Returns the digest value.
-   * @return the digest value.
-   */
-  public byte[] getDigest() {
-    return digest;
-  }
+        transform = EbicsXmlFactory.createTransformType(Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS);
+        digestMethod = EbicsXmlFactory.createDigestMethodType("http://www.w3.org/2001/04/xmlenc#sha256");
+        transforms = EbicsXmlFactory.createTransformsType(new TransformType[]{transform});
+        reference = EbicsXmlFactory.createReferenceType("#xpointer(//*[@authenticate='true'])",
+                transforms,
+                digestMethod,
+                digest);
+        signatureMethod = EbicsXmlFactory.createSignatureMethodType("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
+        canonicalizationMethod = EbicsXmlFactory.createCanonicalizationMethodType(Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS);
+        signedInfo = EbicsXmlFactory.createSignedInfoType(canonicalizationMethod,
+                signatureMethod,
+                new ReferenceType[]{reference});
 
-  /**
-   * Returns the signed info element as an <code>XmlObject</code>
-   * @return he signed info element
-   */
-  public SignatureType getSignatureType() {
-    return ((SignatureType)document);
-  }
-
-  /**
-   * Canonizes and signs a given input with the authentication private key.
-   * of the EBICS user.
-   * 
-   * <p>The given input to be signed is first Canonized using the 
-   * http://www.w3.org/TR/2001/REC-xml-c14n-20010315 algorithm.
-   * 
-   * <p>The element to be canonized is only the SignedInfo element that should be
-   * contained in the request to be signed. Otherwise, a {@link TransformationException}
-   * is thrown.
-   * 
-   * <p> The namespace of the SignedInfo element should be named <b>ds</b> as specified in
-   * the EBICS specification for common namespaces nomination.
-   * 
-   * <p> The signature is ensured using the user X002 private key. This step is done in
-   * {@link EbicsUser#authenticate(byte[]) authenticate}.
-   * 
-   * @param toSign the input to sign
-   * @return the signed input
-   * @throws EbicsException signature fails.
-   */
-  public byte[] sign(byte[] toSign) throws EbicsException {
-    try {
-      DocumentBuilderFactory 		factory;
-      DocumentBuilder			builder;
-      Document				document;
-      Node 				node;
-      Canonicalizer 			canonicalizer;
-
-      factory = DocumentBuilderFactory.newInstance();
-      factory.setNamespaceAware(true);
-      factory.setValidating(true);
-      builder = factory.newDocumentBuilder();
-      builder.setErrorHandler(new IgnoreAllErrorHandler());
-      document = builder.parse(new ByteArrayInputStream(toSign));
-      node = XPathAPI.selectSingleNode(document, "//ds:SignedInfo");
-      canonicalizer = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS);
-      return user.authenticate(canonicalizer.canonicalizeSubtree(node));
-    } catch(Exception e) {
-      throw new EbicsException(e.getMessage());
+        document = EbicsXmlFactory.createSignatureType(signedInfo);
     }
-  }
 
-  @Override
-  public byte[] toByteArray() {
-    addNamespaceDecl("", "http://www.ebics.org/H003");
-    setSaveSuggestedPrefixes("http://www.w3.org/2000/09/xmldsig#", "ds");
+    /**
+     * Returns the digest value.
+     *
+     * @return the digest value.
+     */
+    public byte[] getDigest() {
+        return digest;
+    }
 
-    return super.toByteArray();
-  }
+    /**
+     * Returns the signed info element as an <code>XmlObject</code>
+     *
+     * @return he signed info element
+     */
+    public SignatureType getSignatureType() {
+        return ((SignatureType) document);
+    }
 
-  @Override
-  public String getName() {
-    return "SignedInfo.xml";
-  }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    /**
+     * Canonizes and signs a given input with the authentication private key.
+     * of the EBICS user.
+     *
+     * <p>The given input to be signed is first Canonized using the
+     * http://www.w3.org/TR/2001/REC-xml-c14n-20010315 algorithm.
+     *
+     * <p>The element to be canonized is only the SignedInfo element that should be
+     * contained in the request to be signed. Otherwise, a {@link TransformationException}
+     * is thrown.
+     *
+     * <p> The namespace of the SignedInfo element should be named <b>ds</b> as specified in
+     * the EBICS specification for common namespaces nomination.
+     *
+     * <p> The signature is ensured using the user X002 private key. This step is done in
+     * {@link EbicsUser#authenticate(byte[]) authenticate}.
+     *
+     * @param toSign the input to sign
+     * @return the signed input
+     * @throws EbicsException signature fails.
+     */
+    public byte[] sign(byte[] toSign) throws EbicsException {
+        try {
+            DocumentBuilderFactory factory;
+            DocumentBuilder builder;
+            Document document;
+            Node node;
+            Canonicalizer canonicalizer;
 
-  private byte[]			digest;
-  private EbicsUser 			user;
-  private static final long 		serialVersionUID = 4194924578678778580L;
+            factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            factory.setValidating(true);
+            builder = factory.newDocumentBuilder();
+            builder.setErrorHandler(new IgnoreAllErrorHandler());
+            document = builder.parse(new ByteArrayInputStream(toSign));
+            node = XPathAPI.selectSingleNode(document, "//ds:SignedInfo");
+            canonicalizer = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS);
+            return user.authenticate(canonicalizer.canonicalizeSubtree(node));
+        } catch (Exception e) {
+            throw new EbicsException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public byte[] toByteArray() {
+        addNamespaceDecl("", "http://www.ebics.org/H003");
+        setSaveSuggestedPrefixes("http://www.w3.org/2000/09/xmldsig#", "ds");
+
+        return super.toByteArray();
+    }
+
+    @Override
+    public String getName() {
+        return "SignedInfo.xml";
+    }
 }

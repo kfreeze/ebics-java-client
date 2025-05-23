@@ -38,57 +38,54 @@ import org.kopi.ebics.io.IOUtils;
  * using a separated file for each object to serialize.
  *
  * @author hachani
- *
  */
 public class DefaultSerializationManager implements SerializationManager {
 
-  /**
-   * Constructs a new <code>SerializationManager</code>
-   * @param serializationDir the serialization directory
-   */
-  public DefaultSerializationManager(File serializationDir) {
-    this.serializationDir = serializationDir;
-  }
+    private File serializationDir;
 
-  /**
-   * Constructs a new <code>SerializationManager</code>
-   */
-  public DefaultSerializationManager() {
-    this(null);
-  }
-
-  @Override
-  public void serialize(Savable object) throws EbicsException {
-    try {
-      ObjectOutputStream	out;
-
-      out = new ObjectOutputStream(new FileOutputStream(IOUtils.createFile(serializationDir, object.getSaveName())));
-      object.save(out);
-    } catch (IOException e) {
-      throw new EbicsException(e.getMessage());
+    /**
+     * Constructs a new <code>SerializationManager</code>
+     *
+     * @param serializationDir the serialization directory
+     */
+    public DefaultSerializationManager(File serializationDir) {
+        this.serializationDir = serializationDir;
     }
-  }
 
-  @Override
-  public ObjectInputStream deserialize(String name) throws EbicsException {
-    try {
-      ObjectInputStream		input;
-
-      input = new ObjectInputStream(new FileInputStream(IOUtils.createFile(serializationDir, name + ".cer")));
-      return input;
-    } catch (IOException e) {
-      throw new EbicsException(e.getMessage());
+    /**
+     * Constructs a new <code>SerializationManager</code>
+     */
+    public DefaultSerializationManager() {
+        this(null);
     }
-  }
 
-  @Override
-  public void setSerializationDirectory(String serializationDir) {
-    this.serializationDir = new File(serializationDir);
-  }
+    @Override
+    public void serialize(Savable object) throws EbicsException {
+        try {
+            ObjectOutputStream out;
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+            out = new ObjectOutputStream(new FileOutputStream(IOUtils.createFile(serializationDir, object.getSaveName())));
+            object.save(out);
+        } catch (IOException e) {
+            throw new EbicsException(e.getMessage(), e);
+        }
+    }
 
-  private File 					serializationDir;
+    @Override
+    public ObjectInputStream deserialize(String name) throws EbicsException {
+        try {
+            ObjectInputStream input;
+
+            input = new ObjectInputStream(new FileInputStream(IOUtils.createFile(serializationDir, name + ".cer")));
+            return input;
+        } catch (IOException e) {
+            throw new EbicsException(e.getMessage(), e);
+        }
+    }
+
+
+    @Override
+    public void setSerializationDirectory(String serializationDir) {
+        this.serializationDir = new File(serializationDir);
+    }
 }

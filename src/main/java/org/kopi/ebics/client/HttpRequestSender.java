@@ -45,7 +45,6 @@ import org.kopi.ebics.session.EbicsSession;
 /**
  * A simple HTTP request sender and receiver. The send returns a HTTP code that
  * should be analyzed before proceeding ebics request response parse.
- *
  */
 public class HttpRequestSender {
 
@@ -56,8 +55,7 @@ public class HttpRequestSender {
      * Constructs a new <code>HttpRequestSender</code> with a given ebics
      * session.
      *
-     * @param session
-     *            the ebics session
+     * @param session the ebics session
      */
     public HttpRequestSender(EbicsSession session) {
         this.session = session;
@@ -68,13 +66,12 @@ public class HttpRequestSender {
      * <code>ContentFactory</code> will deliver the request as an
      * <code>InputStream</code>.
      *
-     * @param request
-     *            the ebics request
+     * @param request the ebics request
      * @return the HTTP return code
      */
     public final int send(ContentFactory request) throws IOException {
         RequestConfig.Builder configBuilder = RequestConfig.copy(RequestConfig.DEFAULT).setSocketTimeout(
-            300_000).setConnectTimeout(300_000);
+                300_000).setConnectTimeout(300_000);
 
         Configuration conf = session.getConfiguration();
         String proxyHost = conf.getProperty("http.proxy.host");
@@ -91,11 +88,11 @@ public class HttpRequestSender {
                 String pwd = conf.getProperty("http.proxy.password").trim();
                 credsProvider = new BasicCredentialsProvider();
                 credsProvider.setCredentials(new AuthScope(proxyHost, proxyPort),
-                    new UsernamePasswordCredentials(user, pwd));
+                        new UsernamePasswordCredentials(user, pwd));
             }
         }
         HttpClientBuilder builder = HttpClientBuilder.create().setDefaultRequestConfig(
-            configBuilder.build());
+                configBuilder.build());
         if (credsProvider != null) {
             builder.setDefaultCredentialsProvider(credsProvider);
             builder.setProxyAuthenticationStrategy(new ProxyAuthenticationStrategy());
@@ -111,7 +108,7 @@ public class HttpRequestSender {
 
         try (CloseableHttpResponse response = httpClient.execute(method)) {
             this.response = new ByteArrayContentFactory(
-                EntityUtils.toByteArray(response.getEntity()));
+                    EntityUtils.toByteArray(response.getEntity()));
             return response.getStatusLine().getStatusCode();
         }
     }

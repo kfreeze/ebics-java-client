@@ -32,27 +32,25 @@ import org.kopi.ebics.interfaces.ContentFactory;
  * file transfers.
  *
  * @author hachani
- *
  */
 public class InputStreamContentFactory implements ContentFactory {
 
-  /**
-   * Creates a new <code>ContentFactory</code> from an input stream
-   * @param input the given input stream.
-   */
-  public InputStreamContentFactory(InputStream input) {
-    this.input = input;
-  }
+    private static final long serialVersionUID = 2357104115203917168L;
 
-  @Override
-  public InputStream getContent() throws IOException {
-    return input;
-  }
+    private final InputStream input;
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
 
-  private InputStream			input;
-  private static final long 		serialVersionUID = 2357104115203917168L;
+    /**
+     * Creates a new <code>ContentFactory</code> from an input stream
+     *
+     * @param input the given input stream.
+     */
+    public InputStreamContentFactory(InputStream input) {
+        this.input = input;
+    }
+
+    @Override
+    public InputStream getContent() throws IOException {
+        return input;
+    }
 }

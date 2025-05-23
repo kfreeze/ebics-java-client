@@ -26,65 +26,66 @@ import java.util.ResourceBundle;
 
 /**
  * A class to manage application messages.
- *
  */
 public class Messages {
 
-  private static Locale defaultLocale = Locale.ENGLISH;
-  private final Locale locale;
-  private final ResourceBundle resourceBundle;
+    private static Locale defaultLocale = Locale.ENGLISH;
+    private final Locale locale;
+    private final ResourceBundle resourceBundle;
 
-  public Messages(String bundleName, Locale locale) {
-    this.locale = locale;
-    this.resourceBundle = getBundle(bundleName, locale);
-  }
-
-  public Messages(String bundleName) {
-    this(bundleName, defaultLocale);
-  }
-
-  /**
-   * Return the corresponding value of a given key and string parameter.
-   * @param key the given key
-   * @param arguments object(s) to format
-   * @return the corresponding key value
-   */
-  public String getString(String key, Object ... arguments) {
-    try {
-      MessageFormat messageFormat = new MessageFormat(resourceBundle.getString(key));
-      messageFormat.setLocale(locale);
-      return messageFormat.format(arguments);
-    } catch (MissingResourceException e) {
-      throw new RuntimeException(e);
+    public Messages(String bundleName, Locale locale) {
+        this.locale = locale;
+        this.resourceBundle = getBundle(bundleName, locale);
     }
-  }
 
-  /**
-   * Return the corresponding value of a given key and parameters.
-   * @param key the given key
-   * @return the corresponding key value
-   */
-  public String getString(String key) {
-    try {
-      return resourceBundle.getString(key);
-    } catch (MissingResourceException e) {
-      throw new RuntimeException(e);
+    public Messages(String bundleName) {
+        this(bundleName, defaultLocale);
     }
-  }
 
-  private static ResourceBundle getBundle(String bundleName, Locale locale) {
-    try {
-      return ResourceBundle.getBundle(bundleName, locale);
-    } catch (MissingResourceException e) {
-      try {
-        return ResourceBundle.getBundle(bundleName, Locale.ENGLISH);
-      } catch (MissingResourceException e2) {
-        throw new RuntimeException(e2);
-      }
+    private static ResourceBundle getBundle(String bundleName, Locale locale) {
+        try {
+            return ResourceBundle.getBundle(bundleName, locale);
+        } catch (MissingResourceException e) {
+            try {
+                return ResourceBundle.getBundle(bundleName, Locale.ENGLISH);
+            } catch (MissingResourceException e2) {
+                throw new RuntimeException(e2);
+            }
+        }
     }
-  }
 
-  public static void setLocale(Locale locale) {
-    Messages.defaultLocale = locale;
-  }
+    public static void setLocale(Locale locale) {
+        Messages.defaultLocale = locale;
+    }
+
+    /**
+     * Return the corresponding value of a given key and string parameter.
+     *
+     * @param key       the given key
+     * @param arguments object(s) to format
+     * @return the corresponding key value
+     */
+    public String getString(String key, Object... arguments) {
+        try {
+            MessageFormat messageFormat = new MessageFormat(resourceBundle.getString(key));
+            messageFormat.setLocale(locale);
+            return messageFormat.format(arguments);
+        } catch (MissingResourceException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Return the corresponding value of a given key and parameters.
+     *
+     * @param key the given key
+     * @return the corresponding key value
+     */
+    public String getString(String key) {
+        try {
+            return resourceBundle.getString(key);
+        } catch (MissingResourceException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

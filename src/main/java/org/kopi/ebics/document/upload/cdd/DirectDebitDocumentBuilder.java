@@ -1,4 +1,4 @@
-package org.kopi.ebics.document.cdd;
+package org.kopi.ebics.document.upload.cdd;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -33,8 +33,8 @@ import iso.std.iso._20022.tech.xsd.pain_008_001.ServiceLevel8Choice;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
-import org.kopi.ebics.document.MandateType;
-import org.kopi.ebics.document.SepaXmlDocumentBuilder;
+import org.kopi.ebics.document.upload.MandateType;
+import org.kopi.ebics.document.upload.SepaXmlDocumentBuilder;
 import org.kopi.ebics.exception.EbicsException;
 
 
@@ -42,16 +42,16 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
 
     public static String toXml(DirectDebitDocumentData ddd) throws EbicsException {
         //sepa xml document
-        Document doc = new Document();
+        Document doc = Document.Factory.newInstance();
 
         // CustomerDirectDebitInitiationV08
-        CustomerDirectDebitInitiationV08 cddiv = new CustomerDirectDebitInitiationV08();
+        CustomerDirectDebitInitiationV08 cddiv = CustomerDirectDebitInitiationV08.Factory.newInstance();
         doc.setCstmrDrctDbtInitn(cddiv);
 
         //group header
         cddiv.setGrpHdr(createGroupHeaderSdd(ddd));
 
-        cddiv.getPmtInves().addAll(createPaymentInstructions(ddd));
+        cddiv.getPmtInfList().addAll(createPaymentInstructions(ddd));
 
         StringWriter resultWriter = new StringWriter();
 
@@ -80,7 +80,7 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
 
     private static PaymentInstruction29 createPaymentInstructionInformation(DirectDebitDocumentData ddd, MandateType mandateType) throws EbicsException {
 
-        PaymentInstruction29 result = new PaymentInstruction29();
+        PaymentInstruction29 result = PaymentInstruction29.Factory.newInstance();
         // payment information id
         result.setPmtInfId(ddd.getDocumentMessageId());
         // payment method (fixed)
@@ -96,10 +96,10 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
         result.setPmtTpInf(createPaymentTypeInformation(mandateType));
 
         // requested collection due date
-        result.setReqdColltnDt(dateToXmlGregorianCalendarDate(ddd.getDueDateByMandateType(mandateType)));
+        result.setReqdColltnDt(dateToXmlGregorianCalendarDate(ddd.getDueDateByMandateType(mandateType)).toGregorianCalendar());
 
         // creditor name
-        result.setCdtr(new PartyIdentification135());
+        result.setCdtr(PartyIdentification135.Factory.newInstance());
         result.getCdtr().setNm(ddd.getCreditorName());
 
         // creditor iban
@@ -112,14 +112,14 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
         result.setChrgBr(ChargeBearerType1Code.SLEV);
 
         // single payment transactions ... yay!
-        result.getDrctDbtTxInves().addAll(createDirectDebitTransactionInformationBlocks(ddd, mandateType));
+        result.getDrctDbtTxInfList().addAll(createDirectDebitTransactionInformationBlocks(ddd, mandateType));
 
         return result;
     }
 
     private static CashAccount38 ibanToCashAccountSepa1(String iban) {
-        CashAccount38 result = new CashAccount38();
-        result.setId(new AccountIdentification4Choice());
+        CashAccount38 result = CashAccount38.Factory.newInstance();
+        result.setId(AccountIdentification4Choice.Factory.newInstance());
         result.getId().setIBAN(iban);
         return result;
     }
@@ -135,15 +135,15 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
     }
 
     private static DirectDebitTransactionInformation23 createDirectDebitTransaction(DirectDebitDocumentData ddd, DirectDebitPayment p) throws EbicsException {
-        DirectDebitTransactionInformation23 result = new DirectDebitTransactionInformation23();
+        DirectDebitTransactionInformation23 result = DirectDebitTransactionInformation23.Factory.newInstance();
         // mandate id
-        result.setPmtId(new PaymentIdentification6());
+        result.setPmtId(PaymentIdentification6.Factory.newInstance());
         result.getPmtId().setEndToEndId(p.getMandateId());
 
         // currency and amount
-        result.setInstdAmt(new ActiveOrHistoricCurrencyAndAmount());
+        result.setInstdAmt(ActiveOrHistoricCurrencyAndAmount.Factory.newInstance());
         result.getInstdAmt().setCcy("EUR");
-        result.getInstdAmt().setValue(p.getPaymentSum());
+        result.getInstdAmt().setBigDecimalValue(p.getPaymentSum());
 
         // transaction information
         result.setDrctDbtTx(createDirectDebitTransaction(p, ddd));
@@ -153,25 +153,25 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
         result.setDbtrAgt(bicToBranchAndFinancialInstitutionIdentification(p.getDebitorBic()));
 
         // debitor name
-        result.setDbtr(new PartyIdentification135());
+        result.setDbtr(PartyIdentification135.Factory.newInstance());
         result.getDbtr().setNm(p.getDebitorName());
 
         // debitor iban
-        result.setDbtrAcct(new CashAccount38());
-        result.getDbtrAcct().setId(new AccountIdentification4Choice());
+        result.setDbtrAcct(CashAccount38.Factory.newInstance());
+        result.getDbtrAcct().setId(AccountIdentification4Choice.Factory.newInstance());
         result.getDbtrAcct().getId().setIBAN(p.getDebitorIban());
 
         // reson of payment
-        result.setRmtInf(new RemittanceInformation16());
-        result.getRmtInf().getUstrds().add(p.getReasonForPayment());
+        result.setRmtInf(RemittanceInformation16.Factory.newInstance());
+        result.getRmtInf().getUstrdList().add(p.getReasonForPayment());
 
         return result;
     }
 
     private static DirectDebitTransaction10 createDirectDebitTransaction(DirectDebitPayment p, DirectDebitDocumentData ddd) throws EbicsException {
-        DirectDebitTransaction10 result = new DirectDebitTransaction10();
+        DirectDebitTransaction10 result = DirectDebitTransaction10.Factory.newInstance();
         // mandate related info
-        result.setMndtRltdInf(new MandateRelatedInformation14());
+        result.setMndtRltdInf(MandateRelatedInformation14.Factory.newInstance());
 
         // Erforderlich, wenn das Mandat seit letzten SEPA Lastschrift Einreichung geändert wurde.
         // In diesem Fall ist das Feld mit "TRUE" zu belegen, ansonsten bleibt es leer.
@@ -179,31 +179,31 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
         // -- we'll leave it empty for now and see what happens
         // tx.getMndtRltdInf().setAmdmntInd(Boolean.FALSE);
         result.getMndtRltdInf().setMndtId(p.getMandateId());
-        result.getMndtRltdInf().setDtOfSgntr(dateToXmlGregorianCalendarDate(p.getMandateDate()));
+        result.getMndtRltdInf().setDtOfSgntr(dateToXmlGregorianCalendarDate(p.getMandateDate()).toGregorianCalendar());
 
         // creditor related info
-        result.setCdtrSchmeId(new PartyIdentification135());
-        result.getCdtrSchmeId().setId(new Party38Choice());
-        result.getCdtrSchmeId().getId().setPrvtId(new PersonIdentification13());
+        result.setCdtrSchmeId(PartyIdentification135.Factory.newInstance());
+        result.getCdtrSchmeId().setId(Party38Choice.Factory.newInstance());
+        result.getCdtrSchmeId().getId().setPrvtId(PersonIdentification13.Factory.newInstance());
 
         // person identification - (creditor identifier)
-        GenericPersonIdentification1 inf = new GenericPersonIdentification1();
-        result.getCdtrSchmeId().getId().getPrvtId().getOthrs().add(inf);
+        GenericPersonIdentification1 inf = GenericPersonIdentification1.Factory.newInstance();
+        result.getCdtrSchmeId().getId().getPrvtId().getOthrList().add(inf);
         inf.setId(ddd.getCreditorIdentifier());
 
         // whatever, fixed to SEPA
-        inf.setSchmeNm(new PersonIdentificationSchemeName1Choice());
+        inf.setSchmeNm(PersonIdentificationSchemeName1Choice.Factory.newInstance());
         inf.getSchmeNm().setPrtry("SEPA");
 
         return result;
     }
 
     private static PaymentTypeInformation29 createPaymentTypeInformation(MandateType mandateType) {
-        PaymentTypeInformation29 paymentType = new PaymentTypeInformation29();
-        ServiceLevel8Choice serviceLevel8Choice = new ServiceLevel8Choice();
+        PaymentTypeInformation29 paymentType = PaymentTypeInformation29.Factory.newInstance();
+        ServiceLevel8Choice serviceLevel8Choice = ServiceLevel8Choice.Factory.newInstance();
         serviceLevel8Choice.setCd("SEPA");
-        paymentType.getSvcLvls().add(serviceLevel8Choice);
-        paymentType.setLclInstrm(new LocalInstrument2Choice());
+        paymentType.getSvcLvlList().add(serviceLevel8Choice);
+        paymentType.setLclInstrm(LocalInstrument2Choice.Factory.newInstance());
         paymentType.getLclInstrm().setCd("CORE");
         paymentType.setSeqTp(mandateType.getSepaSequenceType3Code());
         return paymentType;
@@ -211,7 +211,7 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
 
 
     private static GroupHeader83 createGroupHeaderSdd(DirectDebitDocumentData ddd) {
-        GroupHeader83 result = new GroupHeader83();
+        GroupHeader83 result = GroupHeader83.Factory.newInstance();
         // message id
         result.setMsgId(ddd.getDocumentMessageId());
 
@@ -225,7 +225,7 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
         result.setCtrlSum(ddd.getTotalPaymentSum());
 
         // creditor name
-        PartyIdentification135 pi = new PartyIdentification135();
+        PartyIdentification135 pi = PartyIdentification135.Factory.newInstance();
         pi.setNm(ddd.getCreditorName());
 
         result.setInitgPty(pi);
@@ -234,8 +234,8 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
     }
 
     protected static BranchAndFinancialInstitutionIdentification6 bicToBranchAndFinancialInstitutionIdentification(String bic) {
-        BranchAndFinancialInstitutionIdentification6 result = new BranchAndFinancialInstitutionIdentification6();
-        result.setFinInstnId(new FinancialInstitutionIdentification18());
+        BranchAndFinancialInstitutionIdentification6 result = BranchAndFinancialInstitutionIdentification6.Factory.newInstance();
+        result.setFinInstnId(FinancialInstitutionIdentification18.Factory.newInstance());
         result.getFinInstnId().setBICFI(bic);
         return result;
     }

@@ -1,7 +1,7 @@
 /*
  *  All rights reserved.
  */
-package org.kopi.ebics.document;
+package org.kopi.ebics.document.upload;
 
 import org.iban4j.BicUtil;
 import org.iban4j.IbanFormatException;

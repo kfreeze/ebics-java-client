@@ -34,48 +34,44 @@ import org.kopi.ebics.session.EbicsSession;
  * for all ebics downloads.
  *
  * @author Hachani
- *
  */
 public class DownloadTransferRequestElement extends TransferRequestElement {
 
-  /**
-   * Constructs a new <code>DTransferRequestElement</code> element.
-   * @param session the current ebics session
-   * @param type the order type
-   * @param segmentNumber the segment number
-   * @param lastSegment is it the last segment?
-   * @param transactionId the transaction ID
-   */
-  public DownloadTransferRequestElement(EbicsSession session,
-                                 EbicsOrderType type,
-                                 int segmentNumber,
-                                 boolean lastSegment,
-                                 byte[] transactionId)
-  {
-    super(session, generateName(type), type, segmentNumber, lastSegment, transactionId);
-  }
+    private static final long serialVersionUID = -7765739964317408967L;
 
-  @Override
-  public void buildTransfer() throws EbicsException {
-    EbicsRequestDocument.EbicsRequest request;
-    Header 				header;
-    Body				body;
-    MutableHeaderType 			mutable;
-    SegmentNumber			segmentNumber;
-    StaticHeaderType 			xstatic;
+    /**
+     * Constructs a new <code>DTransferRequestElement</code> element.
+     *
+     * @param session       the current ebics session
+     * @param type          the order type
+     * @param segmentNumber the segment number
+     * @param lastSegment   is it the last segment?
+     * @param transactionId the transaction ID
+     */
+    public DownloadTransferRequestElement(EbicsSession session,
+                                          EbicsOrderType type,
+                                          int segmentNumber,
+                                          boolean lastSegment,
+                                          byte[] transactionId) {
+        super(session, generateName(type), type, segmentNumber, lastSegment, transactionId);
+    }
 
-    segmentNumber = EbicsXmlFactory.createSegmentNumber(this.segmentNumber, lastSegment);
-    mutable = EbicsXmlFactory.createMutableHeaderType("Transfer", segmentNumber);
-    xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(), transactionId);
-    header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
-    body = EbicsXmlFactory.createEbicsRequestBody();
-    request = EbicsXmlFactory.createEbicsRequest(header, body);
-    document = EbicsXmlFactory.createEbicsRequestDocument(request);
-  }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    @Override
+    public void buildTransfer() throws EbicsException {
+        EbicsRequestDocument.EbicsRequest request;
+        Header header;
+        Body body;
+        MutableHeaderType mutable;
+        SegmentNumber segmentNumber;
+        StaticHeaderType xstatic;
 
-  private static final long serialVersionUID = -7765739964317408967L;
+        segmentNumber = EbicsXmlFactory.createSegmentNumber(this.segmentNumber, lastSegment);
+        mutable = EbicsXmlFactory.createMutableHeaderType("Transfer", segmentNumber);
+        xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(), transactionId);
+        header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
+        body = EbicsXmlFactory.createEbicsRequestBody();
+        request = EbicsXmlFactory.createEbicsRequest(header, body);
+        document = EbicsXmlFactory.createEbicsRequestDocument(request);
+    }
 }

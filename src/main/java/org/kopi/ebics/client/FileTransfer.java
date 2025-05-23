@@ -78,10 +78,8 @@ import org.kopi.ebics.xml.UploadTransferRequestElement;
  * @author Hachani
  */
 public class FileTransfer {
-    private static final Logger logger = LogManager.getLogger(EbicsClient.class);
-    // --------------------------------------------------------------------
-    // DATA MEMBERS
-    // --------------------------------------------------------------------
+    private static final Logger logger = LogManager.getLogger(FileTransfer.class);
+
     private final EbicsSession session;
 
     /**

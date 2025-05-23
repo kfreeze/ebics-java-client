@@ -26,13 +26,13 @@ import java.util.Calendar;
 
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument;
+import org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest;
+import org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body;
+import org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header;
 import org.kopi.ebics.schema.h005.EmptyMutableHeaderType;
 import org.kopi.ebics.schema.h005.NoPubKeyDigestsRequestStaticHeaderType;
 import org.kopi.ebics.schema.h005.OrderDetailsType;
 import org.kopi.ebics.schema.h005.ProductElementType;
-import org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest;
-import org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body;
-import org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header;
 import org.kopi.ebics.schema.xmldsig.SignatureType;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
@@ -43,97 +43,98 @@ import org.kopi.ebics.utils.Utils;
  * for a HPB ebics server request.
  *
  * @author hachani
- *
  */
 public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
 
-  /**
-   * Construct a new No Public Key Digests Request element.
-   * @param session the current ebics session.
-   */
-  public NoPubKeyDigestsRequestElement(EbicsSession session) {
-    super(session);
-  }
+    private static final long serialVersionUID = 3177047145408329472L;
 
-  /**
-   * Returns the digest value of the authenticated XML portions.
-   * @return  the digest value.
-   * @throws EbicsException Failed to retrieve the digest value.
-   */
-  public byte[] getDigest() throws EbicsException {
-    addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
-
-    try {
-      return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
-    } catch (NoSuchAlgorithmException e) {
-      throw new EbicsException(e.getMessage());
-    } catch (NoSuchProviderException e) {
-      throw new EbicsException(e.getMessage());
+    /**
+     * Construct a new No Public Key Digests Request element.
+     *
+     * @param session the current ebics session.
+     */
+    public NoPubKeyDigestsRequestElement(EbicsSession session) {
+        super(session);
     }
-  }
 
-  /**
-   * Sets the authentication signature of the <code>NoPubKeyDigestsRequestElement</code>
-   * @param authSignature the the authentication signature.
-   */
-  public void setAuthSignature(SignatureType authSignature) {
-    ((EbicsNoPubKeyDigestsRequestDocument)document).getEbicsNoPubKeyDigestsRequest().setAuthSignature(authSignature);
-  }
+    /**
+     * Returns the digest value of the authenticated XML portions.
+     *
+     * @return the digest value.
+     * @throws EbicsException Failed to retrieve the digest value.
+     */
+    public byte[] getDigest() throws EbicsException {
+        addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
 
-  /**
-   * Sets the signature value of the request.
-   * @param signature the signature value
-   */
-  public void setSignatureValue(byte[] signature) {
-    ((EbicsNoPubKeyDigestsRequestDocument)document).getEbicsNoPubKeyDigestsRequest().getAuthSignature().setSignatureValue(EbicsXmlFactory.createSignatureValueType(signature));
-  }
+        try {
+            return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
+        } catch (NoSuchAlgorithmException e) {
+            throw new EbicsException(e.getMessage(), e);
+        } catch (NoSuchProviderException e) {
+            throw new EbicsException(e.getMessage(), e);
+        }
+    }
 
-  @Override
-  public void build() throws EbicsException {
-    EbicsNoPubKeyDigestsRequest			request;
-    Body 					body;
-    Header					header;
-    EmptyMutableHeaderType 			mutable;
-    NoPubKeyDigestsRequestStaticHeaderType 	xstatic;
-    ProductElementType 				product;
-    OrderDetailsType 				orderDetails;
+    /**
+     * Sets the authentication signature of the <code>NoPubKeyDigestsRequestElement</code>
+     *
+     * @param authSignature the the authentication signature.
+     */
+    public void setAuthSignature(SignatureType authSignature) {
+        ((EbicsNoPubKeyDigestsRequestDocument) document).getEbicsNoPubKeyDigestsRequest().setAuthSignature(authSignature);
+    }
 
-    product = EbicsXmlFactory.creatProductElementType(session.getProduct().getLanguage(), session.getProduct().getName());
-    orderDetails = EbicsXmlFactory.createOrderDetailsType(OrderType.HPB.getCode());
-    xstatic = EbicsXmlFactory.createNoPubKeyDigestsRequestStaticHeaderType(session.getBankID(),
-            Utils.generateNonce(),
-            Calendar.getInstance(),
-            session.getUser().getPartner().getPartnerId(),
-            session.getUser().getUserId(),
-            product,
-            orderDetails,
-            session.getUser().getSecurityMedium());
-    mutable = EbicsXmlFactory.createEmptyMutableHeaderType();
-    header = EbicsXmlFactory.createDigestsRequestHeader(true, mutable, xstatic);
-    body = EbicsXmlFactory.createDigestsRequestBody();
-    request = EbicsXmlFactory.createEbicsNoPubKeyDigestsRequest(session.getConfiguration().getRevision(),
-            session.getConfiguration().getVersion(),
-            header,
-            body);
-    document = EbicsXmlFactory.createEbicsNoPubKeyDigestsRequestDocument(request);
-  }
+    /**
+     * Sets the signature value of the request.
+     *
+     * @param signature the signature value
+     */
+    public void setSignatureValue(byte[] signature) {
+        ((EbicsNoPubKeyDigestsRequestDocument) document).getEbicsNoPubKeyDigestsRequest().getAuthSignature().setSignatureValue(EbicsXmlFactory.createSignatureValueType(signature));
+    }
 
-  @Override
-  public byte[] toByteArray() {
-    setSaveSuggestedPrefixes("http://www.w3.org/2000/09/xmldsig#", "ds");
-    setSaveSuggestedPrefixes("http://www.ebics.org/h005", "");
+    @Override
+    public void build() throws EbicsException {
+        EbicsNoPubKeyDigestsRequest request;
+        Body body;
+        Header header;
+        EmptyMutableHeaderType mutable;
+        NoPubKeyDigestsRequestStaticHeaderType xstatic;
+        ProductElementType product;
+        OrderDetailsType orderDetails;
 
-    return super.toByteArray();
-  }
+        product = EbicsXmlFactory.createProductElementType(session.getProduct().getLanguage(),
+                session.getProduct().getName(), session.getProduct().getInstituteID());
+        orderDetails = EbicsXmlFactory.createOrderDetailsType(OrderType.HPB.getCode());
+        xstatic = EbicsXmlFactory.createNoPubKeyDigestsRequestStaticHeaderType(session.getBankID(),
+                Utils.generateNonce(),
+                Calendar.getInstance(),
+                session.getUser().getPartner().getPartnerId(),
+                session.getUser().getUserId(),
+                product,
+                orderDetails,
+                session.getUser().getSecurityMedium());
+        mutable = EbicsXmlFactory.createEmptyMutableHeaderType();
+        header = EbicsXmlFactory.createDigestsRequestHeader(true, mutable, xstatic);
+        body = EbicsXmlFactory.createDigestsRequestBody();
+        request = EbicsXmlFactory.createEbicsNoPubKeyDigestsRequest(session.getConfiguration().getRevision(),
+                session.getConfiguration().getVersion(),
+                header,
+                body);
+        document = EbicsXmlFactory.createEbicsNoPubKeyDigestsRequestDocument(request);
+    }
 
-  @Override
-  public String getName() {
-    return "NoPubKeyDigestsRequest.xml";
-  }
+    @Override
+    public byte[] toByteArray() {
+        setSaveSuggestedPrefixes("http://www.w3.org/2000/09/xmldsig#", "ds");
+        setSaveSuggestedPrefixes("urn:org:ebics:H005", "");
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+        return super.toByteArray();
+    }
 
-  private static final long		serialVersionUID = 3177047145408329472L;
+
+    @Override
+    public String getName() {
+        return "NoPubKeyDigestsRequest.xml";
+    }
 }

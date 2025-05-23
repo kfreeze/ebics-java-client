@@ -25,12 +25,12 @@ import java.security.NoSuchProviderException;
 
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.schema.h005.EbicsRequestDocument;
-import org.kopi.ebics.schema.h005.MutableHeaderType;
-import org.kopi.ebics.schema.h005.StaticHeaderType;
 import org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest;
 import org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Body;
-import org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Header;
 import org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Body.TransferReceipt;
+import org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Header;
+import org.kopi.ebics.schema.h005.MutableHeaderType;
+import org.kopi.ebics.schema.h005.StaticHeaderType;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.utils.Utils;
 
@@ -40,81 +40,79 @@ import org.kopi.ebics.utils.Utils;
  * receipt request to tell the server bank that all segments are received.
  *
  * @author Hachani
- *
  */
 public class ReceiptRequestElement extends DefaultEbicsRootElement {
 
-  /**
-   * Construct a new <code>ReceiptRequestElement</code> element.
-   * @param session the current ebics session
-   * @param name the element name
-   */
-  public ReceiptRequestElement(EbicsSession session,
-                               byte[] transactionId,
-                               String name)
-  {
-    super(session);
-    this.transactionId = transactionId;
-    this.name = name;
-  }
+    private static final long serialVersionUID = -1969616441705744725L;
 
-  @Override
-  public void build() throws EbicsException {
-    EbicsRequest			request;
-    Header 				header;
-    Body				body;
-    MutableHeaderType 			mutable;
-    StaticHeaderType 			xstatic;
-    TransferReceipt			transferReceipt;
-    SignedInfo				signedInfo;
+    private final byte[] transactionId;
+    private final String name;
 
-    mutable = EbicsXmlFactory.createMutableHeaderType("Receipt", null);
-    xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(), transactionId);
-    header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
-    transferReceipt = EbicsXmlFactory.createTransferReceipt(true, 0);
-    body = EbicsXmlFactory.createEbicsRequestBody(transferReceipt);
-    request = EbicsXmlFactory.createEbicsRequest(header, body);
-    document = EbicsXmlFactory.createEbicsRequestDocument(request);
-    signedInfo = new SignedInfo(session.getUser(), getDigest());
-    signedInfo.build();
-    ((EbicsRequestDocument)document).getEbicsRequest().setAuthSignature(signedInfo.getSignatureType());
-    ((EbicsRequestDocument)document).getEbicsRequest().getAuthSignature().setSignatureValue(EbicsXmlFactory.createSignatureValueType(signedInfo.sign(toByteArray())));
-  }
-
-  @Override
-  public byte[] toByteArray() {
-    setSaveSuggestedPrefixes("http://www.ebics.org/h005", "");
-
-    return super.toByteArray();
-  }
-
-  @Override
-  public String getName() {
-    return name  + ".xml";
-  }
-
-  /**
-   * Returns the digest value of the authenticated XML portions.
-   * @return  the digest value.
-   * @throws EbicsException Failed to retrieve the digest value.
-   */
-  public byte[] getDigest() throws EbicsException {
-    addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
-
-    try {
-      return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
-    } catch (NoSuchAlgorithmException e) {
-      throw new EbicsException(e.getMessage());
-    } catch (NoSuchProviderException e) {
-      throw new EbicsException(e.getMessage());
+    /**
+     * Construct a new <code>ReceiptRequestElement</code> element.
+     *
+     * @param session the current ebics session
+     * @param name    the element name
+     */
+    public ReceiptRequestElement(EbicsSession session,
+                                 byte[] transactionId,
+                                 String name) {
+        super(session);
+        this.transactionId = transactionId;
+        this.name = name;
     }
-  }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    @Override
+    public void build() throws EbicsException {
+        EbicsRequest request;
+        Header header;
+        Body body;
+        MutableHeaderType mutable;
+        StaticHeaderType xstatic;
+        TransferReceipt transferReceipt;
+        SignedInfo signedInfo;
 
-  private byte[] 			transactionId;
-  private String			name;
-  private static final long 		serialVersionUID = -1969616441705744725L;
+        mutable = EbicsXmlFactory.createMutableHeaderType("Receipt", null);
+        xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(), transactionId);
+        header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
+        transferReceipt = EbicsXmlFactory.createTransferReceipt(true, 0);
+        body = EbicsXmlFactory.createEbicsRequestBody(transferReceipt);
+        request = EbicsXmlFactory.createEbicsRequest(header, body);
+        document = EbicsXmlFactory.createEbicsRequestDocument(request);
+        signedInfo = new SignedInfo(session.getUser(), getDigest());
+        signedInfo.build();
+        ((EbicsRequestDocument) document).getEbicsRequest().setAuthSignature(signedInfo.getSignatureType());
+        ((EbicsRequestDocument) document).getEbicsRequest().getAuthSignature().setSignatureValue(EbicsXmlFactory.createSignatureValueType(signedInfo.sign(toByteArray())));
+    }
+
+
+    @Override
+    public byte[] toByteArray() {
+        setSaveSuggestedPrefixes("urn:org:ebics:H005", "");
+
+        return super.toByteArray();
+    }
+
+    @Override
+    public String getName() {
+        return name + ".xml";
+    }
+
+    /**
+     * Returns the digest value of the authenticated XML portions.
+     *
+     * @return the digest value.
+     * @throws EbicsException Failed to retrieve the digest value.
+     */
+    public byte[] getDigest() throws EbicsException {
+        addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
+
+        try {
+            return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
+        } catch (NoSuchAlgorithmException e) {
+            throw new EbicsException(e.getMessage(), e);
+        } catch (NoSuchProviderException e) {
+            throw new EbicsException(e.getMessage(), e);
+        }
+    }
 }

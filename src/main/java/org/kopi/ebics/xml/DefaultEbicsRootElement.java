@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,177 +51,181 @@ import org.kopi.ebics.utils.Utils;
 
 public abstract class DefaultEbicsRootElement implements EbicsRootElement {
 
-  /**
-   * Constructs a new default <code>EbicsRootElement</code>
-   * @param session the current ebics session
-   */
-  public DefaultEbicsRootElement(EbicsSession session) {
-    this.session = session;
-    suggestedPrefixes = new HashMap<String, String>();
-  }
+    private static final long serialVersionUID = -3928957097145095177L;
 
-  /**
-   *  Constructs a new default <code>EbicsRootElement</code>
-   */
-  public DefaultEbicsRootElement() {
-    this(null);
-  }
 
-  /**
-   * Saves the Suggested Prefixes when the XML is printed
-   * @param uri the namespace URI
-   * @param prefix the namespace URI prefix
-   */
-  protected static void setSaveSuggestedPrefixes(String uri, String prefix) {
-    suggestedPrefixes.put(uri, prefix);
-  }
+    private static Map<String, String> suggestedPrefixes;
+    protected XmlObject document;
+    protected EbicsSession session;
 
-  /**
-   * Prints a pretty XML document using jdom framework.
-   * @return the pretty XML document.
-   * @throws EbicsException pretty print fails
-   */
-  public byte[] prettyPrint() throws EbicsException {
-    Document document;
-    XMLOutputter xmlOutputter;
-    SAXBuilder                	sxb;
-    ByteArrayOutputStream	output;
-
-    sxb = new SAXBuilder();
-    output = new ByteArrayOutputStream();
-    xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
-
-    try {
-      document = sxb.build(new InputStreamReader(new ByteArrayInputStream(toByteArray()), "UTF-8"));
-      xmlOutputter.output(document, output);
-    } catch (JDOMException e) {
-      throw new EbicsException(e.getMessage());
-    } catch (IOException e) {
-      throw new EbicsException(e.getMessage());
+    /**
+     * Constructs a new default <code>EbicsRootElement</code>
+     *
+     * @param session the current ebics session
+     */
+    public DefaultEbicsRootElement(EbicsSession session) {
+        this.session = session;
+        suggestedPrefixes = new HashMap<String, String>();
     }
 
-    return output.toByteArray();
-  }
-
-  /**
-   * Inserts a schema location to the current ebics root element.
-   * @param namespaceURI the name space URI
-   * @param localPart the local part
-   * @param prefix the prefix
-   * @param value the value
-   */
-  public void insertSchemaLocation(String namespaceURI,
-                                   String localPart,
-                                   String prefix,
-                                   String value)
-  {
-    XmlCursor 			cursor;
-
-    cursor = document.newCursor();
-    while (cursor.hasNextToken()) {
-      if (cursor.isStart()) {
-	cursor.toNextToken();
-	cursor.insertAttributeWithValue(new QName(namespaceURI, localPart, prefix), value);
-	break;
-      } else {
-	cursor.toNextToken();
-      }
+    /**
+     * Constructs a new default <code>EbicsRootElement</code>
+     */
+    public DefaultEbicsRootElement() {
+        this(null);
     }
-  }
 
-  /**
-   * Generates a random file name with a prefix.
-   * @param type the order type.
-   * @return the generated file name.
-   */
-  public static String generateName(EbicsOrderType type) {
-    return type.getCode() + new BigInteger(130, Utils.secureRandom).toString(32);
-  }
-  
-  /**
-   * Generates a random file name with a prefix.
-   * @param prefix the prefix to use.
-   * @return the generated file name.
-   */
-  public static String generateName(String prefix) {
-    return prefix + new BigInteger(130, Utils.secureRandom).toString(32);
-  }
-
-  @Override
-  public String toString() {
-    return new String(toByteArray());
-  }
-
-  @Override
-  public byte[] toByteArray() {
-    XmlOptions		options;
-
-    options = new XmlOptions();
-    options.setSavePrettyPrint();
-    options.setSaveSuggestedPrefixes(suggestedPrefixes);
-    return document.xmlText(options).getBytes();
-  }
-
-  @Override
-  public void addNamespaceDecl(String prefix, String uri) {
-    XmlCursor 			cursor;
-
-    cursor = document.newCursor();
-    while (cursor.hasNextToken()) {
-      if (cursor.isStart()) {
-	cursor.toNextToken();
-	cursor.insertNamespace(prefix, uri);
-	break;
-      } else {
-	cursor.toNextToken();
-      }
+    /**
+     * Saves the Suggested Prefixes when the XML is printed
+     *
+     * @param uri    the namespace URI
+     * @param prefix the namespace URI prefix
+     */
+    protected static void setSaveSuggestedPrefixes(String uri, String prefix) {
+        suggestedPrefixes.put(uri, prefix);
     }
-  }
 
-  @Override
-  public void validate() throws EbicsException {
-    ArrayList<XmlError> validationMessages = new ArrayList<XmlError>();
-    boolean isValid = document.validate(new XmlOptions().setErrorListener(validationMessages));
+    /**
+     * Generates a random file name with a prefix.
+     *
+     * @param type the order type.
+     * @return the generated file name.
+     */
+    public static String generateName(EbicsOrderType type) {
+        return type.getCode() + new BigInteger(130, Utils.secureRandom).toString(32);
+    }
 
-    if (!isValid) {
-      Iterator<XmlError> iter = validationMessages.iterator();
-      StringBuilder message = new StringBuilder();
-      while (iter.hasNext()) {
-        if (!message.toString().equals("")) {
-          message.append(";");
+    /**
+     * Generates a random file name with a prefix.
+     *
+     * @param prefix the prefix to use.
+     * @return the generated file name.
+     */
+    public static String generateName(String prefix) {
+        return prefix + new BigInteger(130, Utils.secureRandom).toString(32);
+    }
+
+    /**
+     * Prints a pretty XML document using jdom framework.
+     *
+     * @return the pretty XML document.
+     * @throws EbicsException pretty print fails
+     */
+    public byte[] prettyPrint() throws EbicsException {
+        Document document;
+        XMLOutputter xmlOutputter;
+        SAXBuilder sxb;
+        ByteArrayOutputStream output;
+
+        sxb = new SAXBuilder();
+        output = new ByteArrayOutputStream();
+        xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
+
+        try {
+            document = sxb.build(new InputStreamReader(new ByteArrayInputStream(toByteArray()), StandardCharsets.UTF_8));
+            xmlOutputter.output(document, output);
+        } catch (JDOMException e) {
+            throw new EbicsException(e.getMessage(), e);
+        } catch (IOException e) {
+            throw new EbicsException(e.getMessage(), e);
         }
-        message.append(iter.next().getMessage());
-      }
 
-      throw new EbicsException(message.toString());
+        return output.toByteArray();
     }
-  }
 
-  @Override
-  public void save(OutputStream out) throws EbicsException {
-    try {
-      byte[]		element;
+    /**
+     * Inserts a schema location to the current ebics root element.
+     *
+     * @param namespaceURI the name space URI
+     * @param localPart    the local part
+     * @param prefix       the prefix
+     * @param value        the value
+     */
+    public void insertSchemaLocation(String namespaceURI,
+                                     String localPart,
+                                     String prefix,
+                                     String value) {
+        XmlCursor cursor;
 
-      element = prettyPrint();
-      out.write(element);
-      out.flush();
-      out.close();
-    } catch (IOException e) {
-      throw new EbicsException(e.getMessage());
+        cursor = document.newCursor();
+        while (cursor.hasNextToken()) {
+            if (cursor.isStart()) {
+                cursor.toNextToken();
+                cursor.insertAttributeWithValue(new QName(namespaceURI, localPart, prefix), value);
+                break;
+            } else {
+                cursor.toNextToken();
+            }
+        }
     }
-  }
 
-  @Override
-  public void print(PrintStream stream) {
-    stream.println(document.toString());
-  }
+    @Override
+    public String toString() {
+        return new String(toByteArray());
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    @Override
+    public byte[] toByteArray() {
+        XmlOptions options;
 
-  protected XmlObject			document;
-  protected EbicsSession 		session;
-  private static Map<String, String> 	suggestedPrefixes;
-  private static final long 		serialVersionUID = -3928957097145095177L;
+        options = new XmlOptions();
+        options.setSavePrettyPrint();
+        options.setSaveSuggestedPrefixes(suggestedPrefixes);
+        return document.xmlText(options).getBytes();
+    }
+
+
+    @Override
+    public void addNamespaceDecl(String prefix, String uri) {
+        XmlCursor cursor;
+
+        cursor = document.newCursor();
+        while (cursor.hasNextToken()) {
+            if (cursor.isStart()) {
+                cursor.toNextToken();
+                cursor.insertNamespace(prefix, uri);
+                break;
+            } else {
+                cursor.toNextToken();
+            }
+        }
+    }
+
+    @Override
+    public void validate() throws EbicsException {
+        ArrayList<XmlError> validationMessages = new ArrayList<XmlError>();
+        boolean isValid = document.validate(new XmlOptions().setErrorListener(validationMessages));
+
+        if (!isValid) {
+            Iterator<XmlError> iter = validationMessages.iterator();
+            StringBuilder message = new StringBuilder();
+            while (iter.hasNext()) {
+                if (!message.toString().isEmpty()) {
+                    message.append(";");
+                }
+                message.append(iter.next().getMessage());
+            }
+
+            throw new EbicsException(message.toString());
+        }
+    }
+
+    @Override
+    public void save(OutputStream out) throws EbicsException {
+        try {
+            byte[] element;
+
+            element = prettyPrint();
+            out.write(element);
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            throw new EbicsException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void print(PrintStream stream) {
+        stream.println(document.toString());
+    }
 }

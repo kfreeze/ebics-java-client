@@ -18,6 +18,7 @@
  */
 
 package org.kopi.ebics.io;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -33,54 +34,51 @@ import org.kopi.ebics.utils.Utils;
  * bank ebics server.
  *
  * @author Hachani
- *
  */
 public class Joiner {
 
-  /**
-   * Constructs a new <code>Joiner</code> object.
-   * @param user the ebics user.
-   */
-  public Joiner(EbicsUser user) {
-    this.user = user;
-    buffer = new ByteArrayOutputStream();
-  }
+    private final EbicsUser user;
+    private final ByteArrayOutputStream buffer;
 
-  public void append(byte[] data) throws EbicsException {
-    try {
-      buffer.write(data);
-      buffer.flush();
-    } catch (IOException e) {
-      throw new EbicsException(e.getMessage());
+    /**
+     * Constructs a new <code>Joiner</code> object.
+     *
+     * @param user the ebics user.
+     */
+    public Joiner(EbicsUser user) {
+        this.user = user;
+        buffer = new ByteArrayOutputStream();
     }
-  }
 
-  /**
-   * Writes the joined part to an output stream.
-   * @param output the output stream.
-   * @param transactionKey the transaction key
-   * @throws EbicsException
-   */
-  public void writeTo(OutputStream output, byte[] transactionKey)
-    throws EbicsException
-  {
-    try {
-      byte[]		decrypted;
 
-      buffer.close();
-      decrypted = user.decrypt(buffer.toByteArray(), transactionKey);
-      output.write(Utils.unzip(decrypted));
-    } catch (GeneralSecurityException e) {
-      throw new EbicsException(e.getMessage());
-    } catch (IOException e) {
-      throw new EbicsException(e.getMessage());
+    public void append(byte[] data) throws EbicsException {
+        try {
+            buffer.write(data);
+            buffer.flush();
+        } catch (IOException e) {
+            throw new EbicsException(e.getMessage(), e);
+        }
     }
-  }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    /**
+     * Writes the joined part to an output stream.
+     *
+     * @param output         the output stream.
+     * @param transactionKey the transaction key
+     * @throws EbicsException
+     */
+    public void writeTo(OutputStream output, byte[] transactionKey)
+            throws EbicsException {
+        try {
+            byte[] decrypted;
 
-  private EbicsUser			user;
-  private ByteArrayOutputStream		buffer;
+            buffer.close();
+            decrypted = user.decrypt(buffer.toByteArray(), transactionKey);
+            output.write(Utils.unzip(decrypted));
+        } catch (GeneralSecurityException e) {
+            throw new EbicsException(e.getMessage(), e);
+        } catch (IOException e) {
+            throw new EbicsException(e.getMessage(), e);
+        }
+    }
 }

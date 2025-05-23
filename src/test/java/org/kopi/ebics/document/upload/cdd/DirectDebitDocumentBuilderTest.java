@@ -1,14 +1,15 @@
-package org.kopi.ebics.document.cdd;
+package org.kopi.ebics.document.upload.cdd;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
 
 import org.junit.jupiter.api.Test;
-import org.kopi.ebics.document.MandateType;
+import org.kopi.ebics.document.upload.MandateType;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.SepaValidationException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class DirectDebitDocumentBuilderTest {

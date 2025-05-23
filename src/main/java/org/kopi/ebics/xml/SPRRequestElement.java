@@ -39,7 +39,6 @@ import org.kopi.ebics.schema.h005.StaticHeaderType.BankPubKeyDigests.Authenticat
 import org.kopi.ebics.schema.h005.StaticHeaderType.BankPubKeyDigests.Encryption;
 import org.kopi.ebics.schema.h005.StaticHeaderType.Product;
 import org.kopi.ebics.session.EbicsSession;
-import org.kopi.ebics.session.OrderType;
 import org.kopi.ebics.utils.Utils;
 
 
@@ -48,88 +47,86 @@ import org.kopi.ebics.utils.Utils;
  * for revoking a subscriber
  *
  * @author Hachani
- *
  */
 public class SPRRequestElement extends InitializationRequestElement {
 
-  /**
-   * Constructs a new SPR request element.
-   * @param session the current ebic session.
-   */
-  public SPRRequestElement(EbicsSession session) throws EbicsException {
-    super(session, org.kopi.ebics.session.OrderType.SPR, "SPRRequest.xml");
-  }
+    private static final long serialVersionUID = -6742241777786111337L;
 
-  @Override
-  public void buildInitialization() throws EbicsException {
-    EbicsRequest			request;
-    Header 				header;
-    Body				body;
-    MutableHeaderType 			mutable;
-    StaticHeaderType 			xstatic;
-    Product 				product;
-    BankPubKeyDigests 			bankPubKeyDigests;
-    Authentication 			authentication;
-    Encryption 				encryption;
-    DataTransferRequestType 		dataTransfer;
-    DataEncryptionInfo 			dataEncryptionInfo;
-    SignatureData 			signatureData;
-    EncryptionPubKeyDigest 		encryptionPubKeyDigest;
-    StaticHeaderOrderDetailsType 	orderDetails;
-    StaticHeaderOrderDetailsType.AdminOrderType adminOrderType;
-    StandardOrderParamsType		standardOrderParamsType;
-    UserSignature			userSignature;
-    DataDigestType dataDigest;
-      userSignature = new UserSignature(session.getUser(),
-              generateName("SIG"),
-              session.getConfiguration().getSignatureVersion(),
-              " ".getBytes());
-      userSignature.build();
-      userSignature.validate();
+    /**
+     * Constructs a new SPR request element.
+     *
+     * @param session the current ebic session.
+     */
+    public SPRRequestElement(EbicsSession session) throws EbicsException {
+        super(session, org.kopi.ebics.session.OrderType.SPR, "SPRRequest.xml");
+    }
 
-      mutable = EbicsXmlFactory.createMutableHeaderType("Initialisation", null);
-      product = EbicsXmlFactory.createProduct(session.getProduct().getLanguage(), session.getProduct().getName());
-      authentication = EbicsXmlFactory.createAuthentication(session.getConfiguration().getAuthenticationVersion(),
-              "http://www.w3.org/2001/04/xmlenc#sha256",
-              decodeHex(session.getUser().getPartner().getBank().getX002Digest()));
-      encryption = EbicsXmlFactory.createEncryption(session.getConfiguration().getEncryptionVersion(),
-              "http://www.w3.org/2001/04/xmlenc#sha256",
-              decodeHex(session.getUser().getPartner().getBank().getE002Digest()));
-      bankPubKeyDigests = EbicsXmlFactory.createBankPubKeyDigests(authentication, encryption);
-      adminOrderType = EbicsXmlFactory.createAdminOrderType(type.getCode());
-      standardOrderParamsType = EbicsXmlFactory.createStandardOrderParamsType();
-      orderDetails = EbicsXmlFactory.createStaticHeaderOrderDetailsType(null,
-              adminOrderType,
-              standardOrderParamsType);
-      xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(),
-              nonce,
-              0,
-              session.getUser().getPartner().getPartnerId(),
-              product,
-              session.getUser().getSecurityMedium(),
-              session.getUser().getUserId(),
-              Calendar.getInstance(),
-              orderDetails,
-              bankPubKeyDigests);
-      header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
-      encryptionPubKeyDigest = EbicsXmlFactory.createEncryptionPubKeyDigest(session.getConfiguration().getEncryptionVersion(),
-              "http://www.w3.org/2001/04/xmlenc#sha256",
-              decodeHex(session.getUser().getPartner().getBank().getE002Digest()));
-      signatureData = EbicsXmlFactory.createSignatureData(true, Utils.encrypt(Utils.zip(userSignature.prettyPrint()), keySpec));
-      dataEncryptionInfo = EbicsXmlFactory.createDataEncryptionInfo(true,
-              encryptionPubKeyDigest,
-              generateTransactionKey());
-      dataDigest = EbicsXmlFactory.createDataDigestType(session.getConfiguration().getSignatureVersion(), null);
-      dataTransfer = EbicsXmlFactory.createDataTransferRequestType(dataEncryptionInfo, signatureData, dataDigest);
-      body = EbicsXmlFactory.createEbicsRequestBody(dataTransfer);
-      request = EbicsXmlFactory.createEbicsRequest(header, body);
-      document = EbicsXmlFactory.createEbicsRequestDocument(request);
 
-  }
+    @Override
+    public void buildInitialization() throws EbicsException {
+        EbicsRequest request;
+        Header header;
+        Body body;
+        MutableHeaderType mutable;
+        StaticHeaderType xstatic;
+        Product product;
+        BankPubKeyDigests bankPubKeyDigests;
+        Authentication authentication;
+        Encryption encryption;
+        DataTransferRequestType dataTransfer;
+        DataEncryptionInfo dataEncryptionInfo;
+        SignatureData signatureData;
+        EncryptionPubKeyDigest encryptionPubKeyDigest;
+        StaticHeaderOrderDetailsType orderDetails;
+        StaticHeaderOrderDetailsType.AdminOrderType adminOrderType;
+        StandardOrderParamsType standardOrderParamsType;
+        UserSignature userSignature;
+        DataDigestType dataDigest;
+        userSignature = new UserSignature(session.getUser(),
+                generateName("SIG"),
+                session.getConfiguration().getSignatureVersion(),
+                " ".getBytes());
+        userSignature.build();
+        userSignature.validate();
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+        mutable = EbicsXmlFactory.createMutableHeaderType("Initialisation", null);
+        product = EbicsXmlFactory.createProduct(session.getProduct().getLanguage(),
+                session.getProduct().getName(), session.getProduct().getInstituteID());
+        authentication = EbicsXmlFactory.createAuthentication(session.getConfiguration().getAuthenticationVersion(),
+                "http://www.w3.org/2001/04/xmlenc#sha256",
+                decodeHex(session.getUser().getPartner().getBank().getX002Digest()));
+        encryption = EbicsXmlFactory.createEncryption(session.getConfiguration().getEncryptionVersion(),
+                "http://www.w3.org/2001/04/xmlenc#sha256",
+                decodeHex(session.getUser().getPartner().getBank().getE002Digest()));
+        bankPubKeyDigests = EbicsXmlFactory.createBankPubKeyDigests(authentication, encryption);
+        adminOrderType = EbicsXmlFactory.createAdminOrderType(type.getCode());
+        standardOrderParamsType = EbicsXmlFactory.createStandardOrderParamsType();
+        orderDetails = EbicsXmlFactory.createStaticHeaderOrderDetailsType(null,
+                adminOrderType,
+                standardOrderParamsType);
+        xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(),
+                nonce,
+                0,
+                session.getUser().getPartner().getPartnerId(),
+                product,
+                session.getUser().getSecurityMedium(),
+                session.getUser().getUserId(),
+                Calendar.getInstance(),
+                orderDetails,
+                bankPubKeyDigests);
+        header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
+        encryptionPubKeyDigest = EbicsXmlFactory.createEncryptionPubKeyDigest(session.getConfiguration().getEncryptionVersion(),
+                "http://www.w3.org/2001/04/xmlenc#sha256",
+                decodeHex(session.getUser().getPartner().getBank().getE002Digest()));
+        signatureData = EbicsXmlFactory.createSignatureData(true, Utils.encrypt(Utils.zip(userSignature.prettyPrint()), keySpec));
+        dataEncryptionInfo = EbicsXmlFactory.createDataEncryptionInfo(true,
+                encryptionPubKeyDigest,
+                generateTransactionKey());
+        dataDigest = EbicsXmlFactory.createDataDigestType(session.getConfiguration().getSignatureVersion(), null);
+        dataTransfer = EbicsXmlFactory.createDataTransferRequestType(dataEncryptionInfo, signatureData, dataDigest);
+        body = EbicsXmlFactory.createEbicsRequestBody(dataTransfer);
+        request = EbicsXmlFactory.createEbicsRequest(header, body);
+        document = EbicsXmlFactory.createEbicsRequestDocument(request);
 
-  private static final long 		serialVersionUID = -6742241777786111337L;
+    }
 }

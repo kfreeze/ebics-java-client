@@ -28,42 +28,40 @@ import org.kopi.ebics.interfaces.EbicsOrderType;
  * for all ebics downloads transfers.
  *
  * @author Hachani
- *
  */
 public class DownloadTransferResponseElement extends TransferResponseElement {
 
-  /**
-   * Constructs a new <code>DTransferResponseElement</code> object.
-   * @param factory the content factory
-   * @param orderType the order type
-   * @param name the element name.
-   */
-  public DownloadTransferResponseElement(ContentFactory factory,
-                                  EbicsOrderType orderType,
-                                  String name)
-  {
-    super(factory, name);
-  }
+    private static final long serialVersionUID = -3317833033395561745L;
 
-  @Override
-  public void build() throws EbicsException {
-    super.build();
+    private byte[] orderData;
 
-    orderData = response.getBody().getDataTransfer().getOrderData().getByteArrayValue();
-  }
+    /**
+     * Constructs a new <code>DTransferResponseElement</code> object.
+     *
+     * @param factory   the content factory
+     * @param orderType the order type
+     * @param name      the element name.
+     */
+    public DownloadTransferResponseElement(ContentFactory factory,
+                                           EbicsOrderType orderType,
+                                           String name) {
+        super(factory, name);
+    }
 
-  /**
-   * Returns the order data.
-   * @return the order data.
-   */
-  public byte[] getOrderData() {
-    return orderData;
-  }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    @Override
+    public void build() throws EbicsException {
+        super.build();
 
-  private byte[]			orderData;
-  private static final long 		serialVersionUID = -3317833033395561745L;
+        orderData = response.getBody().getDataTransfer().getOrderData().getByteArrayValue();
+    }
+
+    /**
+     * Returns the order data.
+     *
+     * @return the order data.
+     */
+    public byte[] getOrderData() {
+        return orderData;
+    }
 }

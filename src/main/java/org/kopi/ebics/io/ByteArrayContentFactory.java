@@ -32,28 +32,26 @@ import org.kopi.ebics.interfaces.ContentFactory;
  * serializable in a way to recover interrupted file transfers.
  *
  * @author hachani
- *
  */
 public class ByteArrayContentFactory implements ContentFactory {
 
-  /**
-   * Constructs a new <code>ByteArrayContentFactory</code> with
-   * a given byte array content.
-   * @param content the byte array content
-   */
-  public ByteArrayContentFactory(byte[] content) {
-    this.content = content;
-  }
+    private static final long serialVersionUID = 4708928447888655116L;
 
-  @Override
-  public InputStream getContent() throws IOException {
-    return new ByteArrayInputStream(content);
-  }
+    private final byte[] content;
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
 
-  private byte[]		content;
-  private static final long 	serialVersionUID = 4708928447888655116L;
+    /**
+     * Constructs a new <code>ByteArrayContentFactory</code> with
+     * a given byte array content.
+     *
+     * @param content the byte array content
+     */
+    public ByteArrayContentFactory(byte[] content) {
+        this.content = content;
+    }
+
+    @Override
+    public InputStream getContent() throws IOException {
+        return new ByteArrayInputStream(content);
+    }
 }

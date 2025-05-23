@@ -18,13 +18,10 @@
 
 package org.kopi.ebics.xml;
 
-import java.util.Calendar;
-
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.schema.h005.AuthenticationPubKeyInfoType;
 import org.kopi.ebics.schema.h005.EncryptionPubKeyInfoType;
 import org.kopi.ebics.schema.h005.HIARequestOrderDataType;
-import org.kopi.ebics.schema.xmldsig.RSAKeyValueType;
 import org.kopi.ebics.schema.xmldsig.X509DataType;
 import org.kopi.ebics.session.EbicsSession;
 
@@ -35,61 +32,58 @@ import org.kopi.ebics.session.EbicsSession;
  * the authentication and encryption user keys to the bank server.
  *
  * @author hachani
- *
  */
 public class HIARequestOrderDataElement extends DefaultEbicsRootElement {
 
-  /**
-   * Constructs a new HIA Request Order Data element
-   * @param session the current ebics session
-   */
-  public HIARequestOrderDataElement(EbicsSession session) {
-    super(session);
-  }
+    private static final long serialVersionUID = -7333250823464659004L;
 
-  @Override
-  public void build() throws EbicsException {
-    HIARequestOrderDataType		request;
-    AuthenticationPubKeyInfoType 	authenticationPubKeyInfo;
-    EncryptionPubKeyInfoType 		encryptionPubKeyInfo;
-    X509DataType 			encryptionX509Data;
-    X509DataType 			authX509Data;
+    /**
+     * Constructs a new HIA Request Order Data element
+     *
+     * @param session the current ebics session
+     */
+    public HIARequestOrderDataElement(EbicsSession session) {
+        super(session);
+    }
 
-      encryptionX509Data = null;
-      if (session.getUser().getPartner().getBank().useCertificate())
-          encryptionX509Data = EbicsXmlFactory.createX509DataType(session.getUser().getDN(),
-                  session.getUser().getE002Certificate());
-      encryptionPubKeyInfo = EbicsXmlFactory.createEncryptionPubKeyInfoType(session.getConfiguration().getEncryptionVersion(),
-              encryptionX509Data);
-      authX509Data = null;
-      if (session.getUser().getPartner().getBank().useCertificate())
-          authX509Data = EbicsXmlFactory.createX509DataType(session.getUser().getDN(),
-                  session.getUser().getX002Certificate());
-      authenticationPubKeyInfo = EbicsXmlFactory.createAuthenticationPubKeyInfoType(session.getConfiguration().getAuthenticationVersion(),
-              authX509Data);
-      request = EbicsXmlFactory.createHIARequestOrderDataType(authenticationPubKeyInfo,
-              encryptionPubKeyInfo,
-              session.getUser().getPartner().getPartnerId(),
-              session.getUser().getUserId());
-      document = EbicsXmlFactory.createHIARequestOrderDataDocument(request);
-  }
+    @Override
+    public void build() throws EbicsException {
+        HIARequestOrderDataType request;
+        AuthenticationPubKeyInfoType authenticationPubKeyInfo;
+        EncryptionPubKeyInfoType encryptionPubKeyInfo;
+        X509DataType encryptionX509Data;
+        X509DataType authX509Data;
 
-  @Override
-  public String getName() {
-    return "HIARequestOrderData.xml";
-  }
+        encryptionX509Data = null;
+        if (session.getUser().getPartner().getBank().useCertificate())
+            encryptionX509Data = EbicsXmlFactory.createX509DataType(session.getUser().getDN(),
+                    session.getUser().getE002Certificate());
+        encryptionPubKeyInfo = EbicsXmlFactory.createEncryptionPubKeyInfoType(session.getConfiguration().getEncryptionVersion(),
+                encryptionX509Data);
+        authX509Data = null;
+        if (session.getUser().getPartner().getBank().useCertificate())
+            authX509Data = EbicsXmlFactory.createX509DataType(session.getUser().getDN(),
+                    session.getUser().getX002Certificate());
+        authenticationPubKeyInfo = EbicsXmlFactory.createAuthenticationPubKeyInfoType(session.getConfiguration().getAuthenticationVersion(),
+                authX509Data);
+        request = EbicsXmlFactory.createHIARequestOrderDataType(authenticationPubKeyInfo,
+                encryptionPubKeyInfo,
+                session.getUser().getPartner().getPartnerId(),
+                session.getUser().getUserId());
+        document = EbicsXmlFactory.createHIARequestOrderDataDocument(request);
+    }
 
-  @Override
-  public byte[] toByteArray() {
-    addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
-    setSaveSuggestedPrefixes("http://www.ebics.org/S001", "");
+    @Override
+    public String getName() {
+        return "HIARequestOrderData.xml";
+    }
 
-    return super.toByteArray();
-  }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    @Override
+    public byte[] toByteArray() {
+        addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
+        setSaveSuggestedPrefixes("http://www.ebics.org/S002", "");
 
-  private static final long 		serialVersionUID = -7333250823464659004L;
+        return super.toByteArray();
+    }
 }

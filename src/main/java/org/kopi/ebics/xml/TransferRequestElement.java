@@ -35,96 +35,96 @@ import org.kopi.ebics.utils.Utils;
  * for all ebics transfer for the bank server.
  *
  * @author Hachani
- *
  */
 public abstract class TransferRequestElement extends DefaultEbicsRootElement {
 
-  /**
-   * Constructs a new <code>TransferRequestElement</code> element.
-   * @param session the current ebics session
-   * @param name the element name
-   * @param type the order type
-   * @param segmentNumber the segment number to be sent
-   * @param lastSegment is it the last segment?
-   * @param transactionId the transaction ID
-   */
-  public TransferRequestElement(EbicsSession session,
-                                String name,
-                                EbicsOrderType type,
-                                int segmentNumber,
-                                boolean lastSegment,
-                                byte[] transactionId)
-  {
-    super(session);
-    this.type = type;
-    this.name = name;
-    this.segmentNumber = segmentNumber;
-    this.lastSegment = lastSegment;
-    this.transactionId = transactionId;
-  }
 
-  @Override
-  public void build() throws EbicsException {
-    SignedInfo			signedInfo;
+    private static final long serialVersionUID = -4212072825371398259L;
+    private final EbicsOrderType type;
+    private final String name;
+    protected int segmentNumber;
+    protected boolean lastSegment;
+    protected byte[] transactionId;
 
-    buildTransfer();
-    signedInfo = new SignedInfo(session.getUser(), getDigest());
-    signedInfo.build();
-    ((EbicsRequestDocument)document).getEbicsRequest().setAuthSignature(signedInfo.getSignatureType());
-    ((EbicsRequestDocument)document).getEbicsRequest().getAuthSignature().setSignatureValue(EbicsXmlFactory.createSignatureValueType(signedInfo.sign(toByteArray())));
-  }
-
-  @Override
-  public String getName() {
-    return name + ".xml";
-  }
-
-  /**
-   * Returns the digest value of the authenticated XML portions.
-   * @return  the digest value.
-   * @throws EbicsException Failed to retrieve the digest value.
-   */
-  public byte[] getDigest() throws EbicsException {
-    addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
-
-    try {
-      return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
-    } catch (NoSuchAlgorithmException e) {
-      throw new EbicsException(e.getMessage());
-    } catch (NoSuchProviderException e) {
-      throw new EbicsException(e.getMessage());
+    /**
+     * Constructs a new <code>TransferRequestElement</code> element.
+     *
+     * @param session       the current ebics session
+     * @param name          the element name
+     * @param type          the order type
+     * @param segmentNumber the segment number to be sent
+     * @param lastSegment   is it the last segment?
+     * @param transactionId the transaction ID
+     */
+    public TransferRequestElement(EbicsSession session,
+                                  String name,
+                                  EbicsOrderType type,
+                                  int segmentNumber,
+                                  boolean lastSegment,
+                                  byte[] transactionId) {
+        super(session);
+        this.type = type;
+        this.name = name;
+        this.segmentNumber = segmentNumber;
+        this.lastSegment = lastSegment;
+        this.transactionId = transactionId;
     }
-  }
 
-  /**
-   * Returns the order type of the element.
-   * @return the order type element.
-   */
-  public String getOrderType() {
-    return type.getCode();
-  }
 
-  @Override
-  public byte[] toByteArray() {
-    setSaveSuggestedPrefixes("http://www.ebics.org/h005", "");
+    @Override
+    public void build() throws EbicsException {
+        SignedInfo signedInfo;
 
-    return super.toByteArray();
-  }
+        buildTransfer();
+        signedInfo = new SignedInfo(session.getUser(), getDigest());
+        signedInfo.build();
+        ((EbicsRequestDocument) document).getEbicsRequest().setAuthSignature(signedInfo.getSignatureType());
+        ((EbicsRequestDocument) document).getEbicsRequest().getAuthSignature().setSignatureValue(EbicsXmlFactory.createSignatureValueType(signedInfo.sign(toByteArray())));
+    }
 
-  /**
-   * Builds the transfer request.
-   * @throws EbicsException
-   */
-  public abstract void buildTransfer() throws EbicsException;
+    @Override
+    public String getName() {
+        return name + ".xml";
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    /**
+     * Returns the digest value of the authenticated XML portions.
+     *
+     * @return the digest value.
+     * @throws EbicsException Failed to retrieve the digest value.
+     */
+    public byte[] getDigest() throws EbicsException {
+        addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
 
-  protected int				segmentNumber;
-  protected boolean			lastSegment;
-  protected byte[]			transactionId;
-  private EbicsOrderType type;
-  private String 			name;
-  private static final long 		serialVersionUID = -4212072825371398259L;
+        try {
+            return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
+        } catch (NoSuchAlgorithmException e) {
+            throw new EbicsException(e.getMessage(), e);
+        } catch (NoSuchProviderException e) {
+            throw new EbicsException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Returns the order type of the element.
+     *
+     * @return the order type element.
+     */
+    public String getOrderType() {
+        return type.getCode();
+    }
+
+    @Override
+    public byte[] toByteArray() {
+        setSaveSuggestedPrefixes("urn:org:ebics:H005", "");
+
+        return super.toByteArray();
+    }
+
+    /**
+     * Builds the transfer request.
+     *
+     * @throws EbicsException
+     */
+    public abstract void buildTransfer() throws EbicsException;
 }

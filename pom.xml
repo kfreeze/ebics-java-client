@@ -11,7 +11,7 @@
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
-            <version>3.1.0</version>
+            <version>5.3.0</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -117,59 +117,60 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxb2-maven-plugin</artifactId>
-                <!-- 2.4 seems to have problems finding the XSD -->
-                <version>3.1.0</version>
+                <groupId>org.apache.xmlbeans</groupId>
+                <artifactId>xmlbeans</artifactId>
+                <version>5.2.1</version>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>xjc</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <sources>src/main/xsd/pain</sources>
-                    <extension>true</extension>
-                    <noPackageLevelAnnotations>true</noPackageLevelAnnotations>
-                    <clearOutputDir>false</clearOutputDir>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.jvnet.jaxb2_commons</groupId>
-                        <artifactId>jaxb2-namespace-prefix</artifactId>
-                        <version>1.3</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>xmlbeans-maven-plugin</artifactId>
-                <version>2.3.3</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>xmlbeans</goal>
+                            <goal>compile</goal>
                         </goals>
                     </execution>
                 </executions>
                 <inherited>true</inherited>
                 <configuration>
-                    <schemaDirectory>src/main/xsd/ebics</schemaDirectory>
-                    <defaultXmlConfigDir>src/main/xsd/ebics/config</defaultXmlConfigDir>
-                    <javaSource>1.8</javaSource>
+                    <sourceDir>${basedir}/src/main/xsd</sourceDir>
+                    <xmlConfigs>${basedir}/src/main/xsd/config/config.xsdconfig</xmlConfigs>
+                    <repackage>org.kopi.ebics.metadata</repackage>
+                    <name>client</name>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.13.0</version>
+                <executions>
+                    <!-- Replacing default-compile as it is treated specially by maven -->
+                    <execution>
+                        <id>default-compile</id>
+                        <phase>none</phase>
+                    </execution>
+                    <!-- Replacing default-testCompile as it is treated specially by maven -->
+                    <execution>
+                        <id>default-testCompile</id>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>java-compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>java-test-compile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -185,21 +186,38 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-eclipse-plugin</artifactId>
-                <version>2.10</version>
-                <configuration>
-                    <downloadSources>true</downloadSources>
-                    <downloadJavadocs>true</downloadJavadocs>
-                </configuration>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.1</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.1.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>21</java.version>
     </properties>
 </project>

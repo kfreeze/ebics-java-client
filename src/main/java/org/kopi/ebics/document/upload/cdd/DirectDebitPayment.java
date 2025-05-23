@@ -1,12 +1,12 @@
-package org.kopi.ebics.document.cdd;
+package org.kopi.ebics.document.upload.cdd;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
 
-import org.kopi.ebics.document.MandateType;
-import org.kopi.ebics.document.SepaStringSanitizer;
-import org.kopi.ebics.document.SepaUtil;
+import org.kopi.ebics.document.upload.MandateType;
+import org.kopi.ebics.document.upload.SepaStringSanitizer;
+import org.kopi.ebics.document.upload.SepaUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.SepaValidationException;
 

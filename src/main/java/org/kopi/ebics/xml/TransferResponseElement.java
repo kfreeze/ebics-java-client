@@ -30,36 +30,36 @@ import org.kopi.ebics.schema.h005.EbicsResponseDocument.EbicsResponse;
  * response for all ebics transfers.
  *
  * @author Hachani
- *
  */
 public class TransferResponseElement extends DefaultResponseElement {
 
-  /**
-   * Constructs a new <code>TransferResponseElement</code> element.
-   * @param factory the content factory
-   * @param name the element name;
-   */
-  public TransferResponseElement(ContentFactory factory, String name) {
-    super(factory, name);
-  }
 
-  @Override
-  public void build() throws EbicsException {
-    String			code;
-    String			text;
+    private static final long serialVersionUID = 7454118286687793155L;
 
-    parse(factory);
-    response = ((EbicsResponseDocument)document).getEbicsResponse();
-    code = response.getHeader().getMutable().getReturnCode();
-    text = response.getHeader().getMutable().getReportText();
-    returnCode = ReturnCode.toReturnCode(code, text);
-    report();
-  }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    protected EbicsResponse response;
 
-  protected EbicsResponse		response;
-  private static final long 		serialVersionUID = 7454118286687793155L;
+
+    /**
+     * Constructs a new <code>TransferResponseElement</code> element.
+     *
+     * @param factory the content factory
+     * @param name    the element name;
+     */
+    public TransferResponseElement(ContentFactory factory, String name) {
+        super(factory, name);
+    }
+
+    @Override
+    public void build() throws EbicsException {
+        String code;
+        String text;
+
+        parse(factory);
+        response = ((EbicsResponseDocument) document).getEbicsResponse();
+        code = response.getHeader().getMutable().getReturnCode();
+        text = response.getHeader().getMutable().getReportText();
+        returnCode = ReturnCode.toReturnCode(code, text);
+        report();
+    }
 }

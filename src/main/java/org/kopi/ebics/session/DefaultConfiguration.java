@@ -38,180 +38,177 @@ import org.kopi.ebics.letter.DefaultLetterManager;
  * A simple client application configuration.
  *
  * @author hachani
- *
  */
 public class DefaultConfiguration implements Configuration {
 
-  /**
-   * Creates a new application configuration.
-   * @param rootDir the root directory
-   */
-  public DefaultConfiguration(String rootDir, Properties properties) {
-    this.rootDir = rootDir;
-    bundle = ResourceBundle.getBundle(RESOURCE_DIR);
-    this.properties = properties;
-    serializationManager = new DefaultSerializationManager();
-    traceManager = new DefaultTraceManager();
-  }
+    private static final String RESOURCE_DIR = "org.kopi.ebics.client.config";
+    private final String rootDir;
+    private final ResourceBundle bundle;
+    private final Properties properties;
+    private final SerializationManager serializationManager;
+    private final TraceManager traceManager;
+    private LetterManager letterManager;
 
-  /**
-   * Returns the corresponding property of the given key
-   * @param key the property key
-   * @return the property value.
-   */
-  private String getString(String key) {
-    try {
-      return bundle.getString(key);
-    } catch(MissingResourceException e) {
-      return "!!" + key + "!!";
+    /**
+     * Creates a new application configuration.
+     *
+     * @param rootDir the root directory
+     */
+    public DefaultConfiguration(String rootDir, Properties properties) {
+        this.rootDir = rootDir;
+        bundle = ResourceBundle.getBundle(RESOURCE_DIR);
+        this.properties = properties;
+        serializationManager = new DefaultSerializationManager();
+        traceManager = new DefaultTraceManager();
     }
-  }
 
-  @Override
-  public String getRootDirectory() {
-    return rootDir;
-  }
+    /**
+     * Returns the corresponding property of the given key
+     *
+     * @param key the property key
+     * @return the property value.
+     */
+    private String getString(String key) {
+        try {
+            return bundle.getString(key);
+        } catch (MissingResourceException e) {
+            return "!!" + key + "!!";
+        }
+    }
 
-  @Override
-  public void init() {
-    //Create the root directory
-    IOUtils.createDirectories(getRootDirectory());
-    //Create the serialization directory
-    IOUtils.createDirectories(getSerializationDirectory());
-    //create the SSL trusted stores directories
-    IOUtils.createDirectories(getSSLTrustedStoreDirectory());
-    //create the SSL key stores directories
-    IOUtils.createDirectories(getSSLKeyStoreDirectory());
-    //Create the SSL bank certificates directories
-    IOUtils.createDirectories(getSSLBankCertificates());
-    //Create users directory
-    IOUtils.createDirectories(getUsersDirectory());
+    @Override
+    public String getRootDirectory() {
+        return rootDir;
+    }
 
-    serializationManager.setSerializationDirectory(getSerializationDirectory());
-    traceManager.setTraceEnabled(isTraceEnabled());
-    letterManager = new DefaultLetterManager(getLocale());
-  }
+    @Override
+    public void init() {
+        //Create the root directory
+        IOUtils.createDirectories(getRootDirectory());
+        //Create the serialization directory
+        IOUtils.createDirectories(getSerializationDirectory());
+        //create the SSL trusted stores directories
+        IOUtils.createDirectories(getSSLTrustedStoreDirectory());
+        //create the SSL key stores directories
+        IOUtils.createDirectories(getSSLKeyStoreDirectory());
+        //Create the SSL bank certificates directories
+        IOUtils.createDirectories(getSSLBankCertificates());
+        //Create users directory
+        IOUtils.createDirectories(getUsersDirectory());
 
-  @Override
-  public Locale getLocale() {
-    return Locale.FRANCE;
-  }
+        serializationManager.setSerializationDirectory(getSerializationDirectory());
+        traceManager.setTraceEnabled(isTraceEnabled());
+        letterManager = new DefaultLetterManager(getLocale());
+    }
 
-  @Override
-  public String getConfigurationFile() {
-    return rootDir + File.separator + getString("conf.file.name");
-  }
+    @Override
+    public Locale getLocale() {
+        return Locale.ENGLISH;
+    }
 
-  @Override
-  public String getProperty(String key) {
-    return properties.getProperty(key);
-  }
+    @Override
+    public String getConfigurationFile() {
+        return rootDir + File.separator + getString("conf.file.name");
+    }
 
-  @Override
-  public String getKeystoreDirectory(EbicsUser user) {
-    return getUserDirectory(user) + File.separator + getString("keystore.dir.name");
-  }
+    @Override
+    public String getProperty(String key) {
+        return properties.getProperty(key);
+    }
 
-  @Override
-  public String getTransferTraceDirectory(EbicsUser user) {
-    return getUserDirectory(user) + File.separator + getString("traces.dir.name");
-  }
+    @Override
+    public String getKeystoreDirectory(EbicsUser user) {
+        return getUserDirectory(user) + File.separator + getString("keystore.dir.name");
+    }
 
-  @Override
-  public String getSerializationDirectory() {
-    return rootDir + File.separator + getString("serialization.dir.name");
-  }
+    @Override
+    public String getTransferTraceDirectory(EbicsUser user) {
+        return getUserDirectory(user) + File.separator + getString("traces.dir.name");
+    }
 
-  @Override
-  public String getSSLTrustedStoreDirectory() {
-    return rootDir + File.separator + getString("ssltruststore.dir.name");
-  }
+    @Override
+    public String getSerializationDirectory() {
+        return rootDir + File.separator + getString("serialization.dir.name");
+    }
 
-  @Override
-  public String getSSLKeyStoreDirectory() {
-    return rootDir + File.separator + getString("sslkeystore.dir.name");
-  }
+    @Override
+    public String getSSLTrustedStoreDirectory() {
+        return rootDir + File.separator + getString("ssltruststore.dir.name");
+    }
 
-  @Override
-  public String getSSLBankCertificates() {
-    return rootDir + File.separator + getString("sslbankcert.dir.name");
-  }
+    @Override
+    public String getSSLKeyStoreDirectory() {
+        return rootDir + File.separator + getString("sslkeystore.dir.name");
+    }
 
-  @Override
-  public String getUsersDirectory() {
-    return rootDir + File.separator + getString("users.dir.name");
-  }
+    @Override
+    public String getSSLBankCertificates() {
+        return rootDir + File.separator + getString("sslbankcert.dir.name");
+    }
 
-  @Override
-  public SerializationManager getSerializationManager() {
-    return serializationManager;
-  }
+    @Override
+    public String getUsersDirectory() {
+        return rootDir + File.separator + getString("users.dir.name");
+    }
 
-  @Override
-  public TraceManager getTraceManager() {
-    return traceManager;
-  }
+    @Override
+    public SerializationManager getSerializationManager() {
+        return serializationManager;
+    }
 
-  @Override
-  public LetterManager getLetterManager() {
-    return letterManager;
-  }
+    @Override
+    public TraceManager getTraceManager() {
+        return traceManager;
+    }
 
-  @Override
-  public String getLettersDirectory(EbicsUser user) {
-    return getUserDirectory(user) + File.separator + getString("letters.dir.name");
-  }
+    @Override
+    public LetterManager getLetterManager() {
+        return letterManager;
+    }
 
-  @Override
-  public String getUserDirectory(EbicsUser user) {
-    return getUsersDirectory() + File.separator + user.getUserId();
-  }
+    @Override
+    public String getLettersDirectory(EbicsUser user) {
+        return getUserDirectory(user) + File.separator + getString("letters.dir.name");
+    }
 
-  @Override
-  public String getSignatureVersion() {
-    return getString("signature.version");
-  }
+    @Override
+    public String getUserDirectory(EbicsUser user) {
+        return getUsersDirectory() + File.separator + user.getUserId();
+    }
 
-  @Override
-  public String getAuthenticationVersion() {
-    return getString("authentication.version");
-  }
 
-  @Override
-  public String getEncryptionVersion() {
-    return getString("encryption.version");
-  }
+    @Override
+    public String getSignatureVersion() {
+        return getString("signature.version");
+    }
 
-  @Override
-  public boolean isTraceEnabled() {
-    return true;
-  }
+    @Override
+    public String getAuthenticationVersion() {
+        return getString("authentication.version");
+    }
 
-  @Override
-  public boolean isCompressionEnabled() {
-    return true;
-  }
+    @Override
+    public String getEncryptionVersion() {
+        return getString("encryption.version");
+    }
 
-  @Override
-  public int getRevision() {
-    return 1;
-  }
+    @Override
+    public boolean isTraceEnabled() {
+        return true;
+    }
 
-  @Override
-  public String getVersion() {
-    return getString("ebics.version");
-  }
+    @Override
+    public boolean isCompressionEnabled() {
+        return true;
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    @Override
+    public int getRevision() {
+        return 1;
+    }
 
-  private final String rootDir;
-  private final ResourceBundle bundle;
-  private final Properties properties;
-  private final SerializationManager serializationManager;
-  private final TraceManager traceManager;
-  private LetterManager letterManager;
-
-  private static final String RESOURCE_DIR = "org.kopi.ebics.client.config";
+    @Override
+    public String getVersion() {
+        return getString("ebics.version");
+    }
 }

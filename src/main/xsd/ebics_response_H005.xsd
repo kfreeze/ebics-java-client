@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSpy v2016 sp1 (x64) (http://www.altova.com) by EBICS Working Group - October 2016 -->
-<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:ebics="urn:org:ebics:H005" targetNamespace="urn:org:ebics:H005" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:ebics="urn:org:ebics:H005" targetNamespace="urn:org:ebics:H005"
+		elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
 	<annotation>
 		<documentation xml:lang="de">ebics_response_H005.xsd ist das EBICS-Protokollschema für Antwortnachrichten.</documentation>
 		<documentation xml:lang="en">ebics_response_H005.xsd is the appropriate EBICS protocol schema for standard responses.</documentation>

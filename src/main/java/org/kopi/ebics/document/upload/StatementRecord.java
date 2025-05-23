@@ -1,4 +1,4 @@
-package org.kopi.ebics.document;
+package org.kopi.ebics.document.upload;
 
 import java.util.ArrayList;
 import java.util.List;

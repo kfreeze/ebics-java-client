@@ -30,54 +30,52 @@ import org.kopi.ebics.utils.Utils;
  * bank server
  *
  * @author hachani
- *
  */
 public class HIARequestElement extends DefaultEbicsRootElement {
 
-  /**
-   * Constructs a new HIA Request root element
-   * @param session the current ebics session
-   * @param orderId the order id, if null a random one is generated.
-   */
-  public HIARequestElement(EbicsSession session, String orderId) {
-    super(session);
-    this.orderId = orderId;
-  }
 
-  @Override
-  public String getName() {
-    return "HIARequest.xml";
-  }
+    private static final long serialVersionUID = 1130436605993828777L;
+    private final String orderId;
+    private UnsecuredRequestElement unsecuredRequest;
 
-  @Override
-  public void build() throws EbicsException {
-    HIARequestOrderDataElement		requestOrderData;
+    /**
+     * Constructs a new HIA Request root element
+     *
+     * @param session the current ebics session
+     * @param orderId the order id, if null a random one is generated.
+     */
+    public HIARequestElement(EbicsSession session, String orderId) {
+        super(session);
+        this.orderId = orderId;
+    }
 
-    requestOrderData = new HIARequestOrderDataElement(session);
-    requestOrderData.build();
-    unsecuredRequest = new UnsecuredRequestElement(session,
-	                                           OrderType.HIA,
-	                                           Utils.zip(requestOrderData.prettyPrint()));
-    unsecuredRequest.build();
-  }
+    @Override
+    public String getName() {
+        return "HIARequest.xml";
+    }
 
-  @Override
-  public byte[] toByteArray() {
-    setSaveSuggestedPrefixes("http://www.ebics.org/H003", "");
 
-    return unsecuredRequest.toByteArray();
-  }
+    @Override
+    public void build() throws EbicsException {
+        HIARequestOrderDataElement requestOrderData;
 
-  @Override
-  public void validate() throws EbicsException {
-    unsecuredRequest.validate();
-  }
+        requestOrderData = new HIARequestOrderDataElement(session);
+        requestOrderData.build();
+        unsecuredRequest = new UnsecuredRequestElement(session,
+                OrderType.HIA,
+                Utils.zip(requestOrderData.prettyPrint()));
+        unsecuredRequest.build();
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    @Override
+    public byte[] toByteArray() {
+        setSaveSuggestedPrefixes("http://www.ebics.org/H003", "");
 
-  private String			orderId;
-  private UnsecuredRequestElement	unsecuredRequest;
-  private static final long 		serialVersionUID = 1130436605993828777L;
+        return unsecuredRequest.toByteArray();
+    }
+
+    @Override
+    public void validate() throws EbicsException {
+        unsecuredRequest.validate();
+    }
 }

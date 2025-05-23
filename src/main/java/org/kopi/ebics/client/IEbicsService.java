@@ -1,61 +1,139 @@
 package org.kopi.ebics.client;
 
 /**
- * Common interface to represent an EBICS service definition
- * including message metadata, format details, and container preferences.
+ * Generic interface representing a Business Transaction Format (BTF)
+ * used in EBICS 3.0 for both upload (e.g. BTU) and download (e.g. BTD) operations.
  * <p>
- * This interface is designed for EBICS 3.0 usage, where services are
- * described via {@code ServiceName}, {@code MessageType}, {@code Format}, {@code Variant}, and {@code Version}.
+ * EBICS 3.0 replaces the older {@code OrderAttribute} mechanism with
+ * a semantically rich description via BTF elements. This interface provides access
+ * to the standard BTF fields as defined in EBICS 3.0 specification.
+ * <p>
+ * Implementations should return the appropriate values for a specific
+ * service such as SEPA Direct Debit, Credit Transfer, or account statements.
+ *
+ * @see <a href="https://www.ebics.org">EBICS Official Site</a>
  */
 public interface IEbicsService {
 
     /**
-     * @return the mandatory service name, such as {@code BTU} (Business Transaction Upload)
-     *         or {@code BTD} (Business Transaction Download).
+     * Returns the BTF service name.
+     * <p>
+     * Examples:
+     * <ul>
+     *     <li>{@code "SDD"} – SEPA Direct Debit</li>
+     *     <li>{@code "CCT"} – SEPA Credit Transfer</li>
+     *     <li>{@code "CAMT"} – Account statement (download)</li>
+     * </ul>
+     *
+     * @return the service name component of the BTF (never {@code null})
      */
     String getServiceName();
 
     /**
-     * @return the optional service option, used to distinguish service variants
-     *         (e.g., {@code SEPA}, {@code C53}, {@code STA}). Can be {@code null}.
+     * Returns the BTF service option (e.g. execution method or variant).
+     * <p>
+     * Examples:
+     * <ul>
+     *     <li>{@code "COR"} – COR1 Direct Debit</li>
+     *     <li>{@code "B2B"} – Business-to-business Direct Debit</li>
+     *     <li>{@code "URN"} – Urgent transfer</li>
+     * </ul>
+     *
+     * @return the service option component of the BTF (never {@code null})
      */
     String getServiceOption();
 
     /**
-     * @return the optional service scope to which the service applies, such as
-     *         {@code customer}, {@code partner}, or {@code system}. Can be {@code null}.
+     * Returns the geographical or national scope of the transaction.
+     * <p>
+     * This value is optional and may be empty or {@code null} depending on the BTF specification.
+     * For example, {@code "DE"} for Germany or {@code "EU"} for Eurozone-wide formats.
+     *
+     * @return the optional scope string, or {@code null} if not applicable
      */
     String getScope();
 
     /**
-     * @return the container type used for the payload (e.g., {@code XML}, {@code ZIP}, {@code GZIP}).
-     *         Defaults to {@code XML}.
+     * Returns the container type for the transaction content.
+     * <p>
+     * Typical values:
+     * <ul>
+     *     <li>{@code "XML"} – for structured SEPA message files</li>
+     *     <li>{@code "ZIP"} – for zipped payloads</li>
+     *     <li>{@code "TXT"} – for plain text files</li>
+     * </ul>
+     *
+     * @return the container type string (defaults to {@code "XML"})
      */
     default String getContainerType() {
         return "XML";
     }
 
     /**
-     * @return the EBICS message name, such as {@code pain.001}, {@code camt.053}, or {@code pain.008}.
-     *         This corresponds to the <code>&lt;MsgName&gt;</code> field in EBICS 3.0.
+     * Returns the name of the message type being exchanged.
+     * <p>
+     * Examples:
+     * <ul>
+     *     <li>{@code "pain.008"} – Direct Debit</li>
+     *     <li>{@code "pain.001"} – Credit Transfer</li>
+     *     <li>{@code "camt.053"} – Account statement</li>
+     * </ul>
+     *
+     * @return the message name (never {@code null})
      */
     String getMessageName();
 
     /**
-     * @return the message format, typically {@code xml} or {@code txt}.
-     *         This maps to the <code>&lt;Format&gt;</code> field in BTF.
+     * Returns the message format of the transaction.
+     * <p>
+     * Most transactions will use {@code "ISO"} for ISO 20022 messages.
+     *
+     * @return the format identifier (e.g., {@code "ISO"})
      */
     String getMessageFormat();
 
     /**
-     * @return the message variant, such as {@code sepa}, {@code core}, {@code b2b}, or custom.
-     *         This maps to the <code>&lt;Variant&gt;</code> field in BTF. Can be {@code null}.
+     * Returns the message variant to further qualify the message format.
+     * <p>
+     * This may differentiate between country-specific implementations or bank-specific variants.
+     *
+     * @return the variant string, or {@code null} if not applicable
      */
     String getMessageVariant();
 
     /**
-     * @return the version of the message schema, such as {@code 001.03} or {@code 001.08}.
-     *         This maps to the <code>&lt;Version&gt;</code> field in BTF.
+     * Returns the version of the message schema being used.
+     * <p>
+     * Examples:
+     * <ul>
+     *     <li>{@code "08"} for {@code pain.008.001.08}</li>
+     *     <li>{@code "04"} for {@code camt.053.001.04}</li>
+     * </ul>
+     *
+     * @return the message version number (e.g., {@code "08"})
      */
     String getMessageVersion();
+
+    /**
+     * Indicates whether the transaction requires the signature flag to be set.
+     * <p>
+     * This is usually {@code true} for upload operations (e.g., BTU),
+     * but {@code false} for most download operations (e.g., BTD).
+     *
+     * @return {@code true} if a user signature is required; {@code false} otherwise
+     */
+    default boolean isSignatureFlag() {
+        return false;
+    }
+
+    /**
+     * Indicates whether the transaction requires the EDS (Electronic Distributed Signature) flag.
+     * <p>
+     * EDS is typically used in multi-user signature workflows.
+     *
+     * @return {@code true} if EDS flag should be activated; {@code false} otherwise
+     */
+    default boolean isEdsFlag() {
+        return false;
+    }
 }

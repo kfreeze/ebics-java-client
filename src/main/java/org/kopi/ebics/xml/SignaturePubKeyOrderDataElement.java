@@ -19,12 +19,9 @@
 
 package org.kopi.ebics.xml;
 
-import java.util.Calendar;
-
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.schema.s002.SignaturePubKeyInfoType;
 import org.kopi.ebics.schema.s002.SignaturePubKeyOrderDataType;
-import org.kopi.ebics.schema.xmldsig.RSAKeyValueType;
 import org.kopi.ebics.schema.xmldsig.X509DataType;
 import org.kopi.ebics.session.EbicsSession;
 
@@ -34,52 +31,48 @@ import org.kopi.ebics.session.EbicsSession;
  * component for the INI request.
  *
  * @author hachani
- *
  */
 public class SignaturePubKeyOrderDataElement extends DefaultEbicsRootElement {
 
-  /**
-   * Creates a new Signature Public Key Order Data element.
-   * @param session the current ebics session
-   */
-  public SignaturePubKeyOrderDataElement(EbicsSession session) {
-    super(session);
-  }
+    private static final long serialVersionUID = -5523105558015982970L;
 
-  @Override
-  public void build() throws EbicsException {
-    SignaturePubKeyInfoType		signaturePubKeyInfo;
-    X509DataType 			x509Data;
-    SignaturePubKeyOrderDataType	signaturePubKeyOrderData;
+    /**
+     * Creates a new Signature Public Key Order Data element.
+     *
+     * @param session the current ebics session
+     */
+    public SignaturePubKeyOrderDataElement(EbicsSession session) {
+        super(session);
+    }
 
-    x509Data = null;
-    if (session.getUser().getPartner().getBank().useCertificate())
+    @Override
+    public void build() throws EbicsException {
+        SignaturePubKeyInfoType signaturePubKeyInfo;
+        X509DataType x509Data;
+        SignaturePubKeyOrderDataType signaturePubKeyOrderData;
+
         x509Data = EbicsXmlFactory.createX509DataType(session.getUser().getDN(),
-	                                          session.getUser().getA005Certificate());
-    signaturePubKeyInfo = EbicsXmlFactory.createSignaturePubKeyInfoType(x509Data,
-	                                                                session.getConfiguration().getSignatureVersion());
-    signaturePubKeyOrderData = EbicsXmlFactory.createSignaturePubKeyOrderData(signaturePubKeyInfo,
-									      session.getUser().getPartner().getPartnerId(),
-									      session.getUser().getUserId());
-    document = EbicsXmlFactory.createSignaturePubKeyOrderDataDocument(signaturePubKeyOrderData);
-  }
+                session.getUser().getA005Certificate());
+        signaturePubKeyInfo = EbicsXmlFactory.createSignaturePubKeyInfoType(x509Data,
+                session.getConfiguration().getSignatureVersion());
+        signaturePubKeyOrderData = EbicsXmlFactory.createSignaturePubKeyOrderData(signaturePubKeyInfo,
+                session.getUser().getPartner().getPartnerId(),
+                session.getUser().getUserId());
+        document = EbicsXmlFactory.createSignaturePubKeyOrderDataDocument(signaturePubKeyOrderData);
 
-  @Override
-  public String getName() {
-    return "SignaturePubKeyOrderData.xml";
-  }
+    }
 
-  @Override
-  public byte[] toByteArray() {
-    addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
-    setSaveSuggestedPrefixes("http://www.ebics.org/S001", "");
+    @Override
+    public String getName() {
+        return "SignaturePubKeyOrderData.xml";
+    }
 
-    return super.toByteArray();
-  }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    @Override
+    public byte[] toByteArray() {
+        addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");
+        setSaveSuggestedPrefixes("http://www.ebics.org/S002", "");
 
-  private static final long 		serialVersionUID = -5523105558015982970L;
+        return super.toByteArray();
+    }
 }

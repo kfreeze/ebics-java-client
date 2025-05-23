@@ -1,4 +1,4 @@
-package org.kopi.ebics.document;
+package org.kopi.ebics.document.upload;
 
 import java.io.Serializable;
 import java.util.regex.Pattern;

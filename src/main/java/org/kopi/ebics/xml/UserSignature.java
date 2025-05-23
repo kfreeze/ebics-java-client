@@ -34,69 +34,67 @@ import org.kopi.ebics.schema.s002.UserSignatureDataSigBookType;
  * key sent in the INI request to the EBICS bank server
  *
  * @author hachani
- *
  */
 public class UserSignature extends DefaultEbicsRootElement {
 
-  /**
-   * Constructs a new <code>UserSignature</code> element for
-   * an Ebics user and a data to sign
-   * @param user the ebics user
-   * @param signatureVersion the signature version
-   * @param toSign the data to be signed
-   */
-  public UserSignature(EbicsUser user,
-                       String name,
-                       String signatureVersion,
-                       byte[] toSign)
-  {
-    this.user = user;
-    this.toSign = toSign;
-    this.name = name;
-    this.signatureVersion = signatureVersion;
-  }
 
-  @Override
-  public void build() throws EbicsException {
-    UserSignatureDataSigBookType 	userSignatureData;
-    OrderSignatureDataType		orderSignatureData;
-    byte[]				signature;
+    private static final long serialVersionUID = 2992372604876703738L;
+    private final EbicsUser user;
+    private final String signatureVersion;
+    private final byte[] toSign;
 
-    try {
-      signature = user.sign(toSign);
-    } catch (IOException e) {
-      throw new EbicsException(e.getMessage());
-    } catch (GeneralSecurityException e) {
-      throw new EbicsException(e.getMessage());
+
+    private final String name;
+
+    /**
+     * Constructs a new <code>UserSignature</code> element for
+     * an Ebics user and a data to sign
+     *
+     * @param user             the ebics user
+     * @param signatureVersion the signature version
+     * @param toSign           the data to be signed
+     */
+    public UserSignature(EbicsUser user,
+                         String name,
+                         String signatureVersion,
+                         byte[] toSign) {
+        this.user = user;
+        this.toSign = toSign;
+        this.name = name;
+        this.signatureVersion = signatureVersion;
     }
 
-    orderSignatureData = EbicsXmlFactory.createOrderSignatureDataType(signatureVersion,
-                                                                      user.getPartner().getPartnerId(),
-                                                                      user.getUserId(),
-                                                                      signature);
-    userSignatureData = EbicsXmlFactory.createUserSignatureDataSigBookType(new OrderSignatureDataType[] {orderSignatureData});
-    document = EbicsXmlFactory.createUserSignatureDataDocument(userSignatureData);
-  }
+    @Override
+    public void build() throws EbicsException {
+        UserSignatureDataSigBookType userSignatureData;
+        OrderSignatureDataType orderSignatureData;
+        byte[] signature;
 
-  @Override
-  public String getName() {
-    return name + ".xml";
-  }
+        try {
+            signature = user.sign(toSign);
+        } catch (IOException e) {
+            throw new EbicsException(e.getMessage(), e);
+        } catch (GeneralSecurityException e) {
+            throw new EbicsException(e.getMessage(), e);
+        }
 
-  @Override
-  public byte[] toByteArray() {
-    setSaveSuggestedPrefixes("http://www.ebics.org/S001", "");
+        orderSignatureData = EbicsXmlFactory.createOrderSignatureDataType(signatureVersion,
+                user.getPartner().getPartnerId(),
+                user.getUserId(),
+                signature);
+        userSignatureData = EbicsXmlFactory.createUserSignatureDataSigBookType(new OrderSignatureDataType[]{orderSignatureData});
+        document = EbicsXmlFactory.createUserSignatureDataDocument(userSignatureData);
+    }
 
-    return super.toByteArray();
-  }
+    @Override
+    public String getName() {
+        return name + ".xml";
+    }
 
-  // --------------------------------------------------------------------
-  // DATA MEMBERS
-  // --------------------------------------------------------------------
+    @Override
+    public byte[] toByteArray() {
+        setSaveSuggestedPrefixes("http://www.ebics.org/S002", "");
 
-  private EbicsUser 			user;
-  private String 			signatureVersion;
-  private byte[]			toSign;
-  private String			name;
-  private static final long 		serialVersionUID = 2992372604876703738L;
+        return super.toByteArray();
+    }
 }

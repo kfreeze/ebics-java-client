@@ -33,17 +33,17 @@ import org.kopi.ebics.interfaces.EbicsUser;
  * for the authentication certificate.
  *
  * @author Hachani
- *
  */
 public class X002Letter extends AbstractInitLetter {
 
-  /**
-   * Constructs a new <code>X002Letter</code>
-   * @param locale the application locale
-   */
-  public X002Letter(Locale locale) {
-    super(locale);
-  }
+    /**
+     * Constructs a new <code>X002Letter</code>
+     *
+     * @param locale the application locale
+     */
+    public X002Letter(Locale locale) {
+        super(locale);
+    }
 
     @Override
     public void create(EbicsUser user) throws GeneralSecurityException, IOException, EbicsException {
@@ -72,13 +72,13 @@ public class X002Letter extends AbstractInitLetter {
         }
     }
 
-  @Override
-  public String getTitle() {
-    return getString("HIALetter.x002.title");
-  }
+    @Override
+    public String getTitle() {
+        return getString("HIALetter.x002.title");
+    }
 
-  @Override
-  public String getName() {
-    return getString("HIALetter.x002.name") + ".txt";
-  }
+    @Override
+    public String getName() {
+        return getString("HIALetter.x002.name") + ".txt";
+    }
 }

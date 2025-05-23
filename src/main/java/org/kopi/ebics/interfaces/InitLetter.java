@@ -32,36 +32,39 @@ import org.kopi.ebics.exception.EbicsException;
  * of the <code>InitLetter</code>
  *
  * @author Hachani
- *
  */
 public interface InitLetter {
 
-  /**
-   * Creates an <code>InitLetter</code> for a given <code>EbicsUser</code>
-   * @param user the ebics user.
-   * @throws EbicsException
-   * @throws IOException
-   * @throws GeneralSecurityException
-   */
-  void create(EbicsUser user)
-    throws GeneralSecurityException, IOException, EbicsException;
+    /**
+     * Creates an <code>InitLetter</code> for a given <code>EbicsUser</code>
+     *
+     * @param user the ebics user.
+     * @throws EbicsException
+     * @throws IOException
+     * @throws GeneralSecurityException
+     */
+    void create(EbicsUser user)
+            throws GeneralSecurityException, IOException, EbicsException;
 
-  /**
-   * Saves the <code>InitLetter</code> to the given output stream.
-   * @param output the output stream.
-   * @throws IOException Save error.
-   */
-  void writeTo(OutputStream output) throws IOException;
+    /**
+     * Saves the <code>InitLetter</code> to the given output stream.
+     *
+     * @param output the output stream.
+     * @throws IOException Save error.
+     */
+    void writeTo(OutputStream output) throws IOException;
 
-  /**
-   * Returns the initialization letter title.
-   * @return the letter title.
-   */
-  String getTitle();
+    /**
+     * Returns the initialization letter title.
+     *
+     * @return the letter title.
+     */
+    String getTitle();
 
-  /**
-   * Returns the letter name.
-   * @return the letter name.
-   */
-  String getName();
+    /**
+     * Returns the letter name.
+     *
+     * @return the letter name.
+     */
+    String getName();
 }
