@@ -556,7 +556,7 @@ public class EbicsClient {
     /**
      * Performs buffers save before quitting the client application.
      */
-    public void quit() {
+    public void quit() throws IOException {
         try {
             for (User user : users.values()) {
                 if (user.needsSave()) {
@@ -588,7 +588,7 @@ public class EbicsClient {
         clearTraces();
     }
 
-    public void clearTraces() {
+    public void clearTraces() throws IOException {
         logger.info(messages.getString("app.cache.clear"));
         configuration.getTraceManager().clear();
     }
