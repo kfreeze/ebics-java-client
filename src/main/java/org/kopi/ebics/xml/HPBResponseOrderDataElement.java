@@ -31,8 +31,7 @@ import org.kopi.ebics.schema.h005.HPBResponseOrderDataType;
  *
  * @author hachani
  */
-public class HPBResponseOrderDataElement extends DefaultResponseElement {
-
+public class HPBResponseOrderDataElement extends DefaultResponseElement<HPBResponseOrderDataDocument> {
 
     private static final long serialVersionUID = -1305363936881364049L;
     private HPBResponseOrderDataType response;
@@ -65,11 +64,10 @@ public class HPBResponseOrderDataElement extends DefaultResponseElement {
         return response.getEncryptionPubKeyInfo().getX509Data().getX509CertificateArray(0);
     }
 
-
     @Override
     public void build() throws EbicsException {
-        parse(factory);
-        response = ((HPBResponseOrderDataDocument) document).getHPBResponseOrderData();
+        parse(HPBResponseOrderDataDocument.Factory);
+        response = document.getHPBResponseOrderData();
     }
 
     @Override

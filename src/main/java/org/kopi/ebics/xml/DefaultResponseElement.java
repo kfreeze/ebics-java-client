@@ -23,6 +23,7 @@ import java.io.IOException;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.schema.DocumentFactory;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.ReturnCode;
 import org.kopi.ebics.interfaces.ContentFactory;
@@ -34,7 +35,7 @@ import org.kopi.ebics.interfaces.ContentFactory;
  *
  * @author Hachani
  */
-public abstract class DefaultResponseElement extends DefaultEbicsRootElement {
+public abstract class DefaultResponseElement<T extends XmlObject> extends DefaultEbicsRootElement<T> {
 
     private static final long serialVersionUID = 4014595046719645090L;
 
@@ -47,13 +48,11 @@ public abstract class DefaultResponseElement extends DefaultEbicsRootElement {
      * Constructs a new ebics response element.
      *
      * @param factory the content factory containing the response.
-     * @param name    the element name
      */
-    public DefaultResponseElement(ContentFactory factory, String name) {
+    protected DefaultResponseElement(ContentFactory factory, String name) {
         this.factory = factory;
         this.name = name;
     }
-
 
     /**
      * Parses the content of a <code>ContentFactory</code>
@@ -61,12 +60,10 @@ public abstract class DefaultResponseElement extends DefaultEbicsRootElement {
      * @param factory the content factory
      * @throws EbicsException parse error
      */
-    protected void parse(ContentFactory factory) throws EbicsException {
+    protected void parse(DocumentFactory<T> documentFactory) throws EbicsException {
         try {
-            document = XmlObject.Factory.parse(factory.getContent());
-        } catch (XmlException e) {
-            throw new EbicsException(e.getMessage(), e);
-        } catch (IOException e) {
+            document = documentFactory.parse(factory.getContent());
+        } catch (XmlException | IOException e) {
             throw new EbicsException(e.getMessage(), e);
         }
     }
@@ -80,11 +77,11 @@ public abstract class DefaultResponseElement extends DefaultEbicsRootElement {
         checkReturnCode(returnCode);
     }
 
-  protected void checkReturnCode(ReturnCode returnCode) throws EbicsException {
-    if (!returnCode.isOk()) {
-      returnCode.throwException();
+    protected void checkReturnCode(ReturnCode returnCode) throws EbicsException {
+        if (!returnCode.isOk()) {
+            returnCode.throwException();
+        }
     }
-}
 
     @Override
     public String getName() {

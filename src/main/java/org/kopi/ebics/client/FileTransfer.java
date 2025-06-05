@@ -24,8 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.ContentFactory;
 import org.kopi.ebics.interfaces.EbicsOrderType;
@@ -46,6 +44,8 @@ import org.kopi.ebics.xml.ReceiptResponseElement;
 import org.kopi.ebics.xml.TransferResponseElement;
 import org.kopi.ebics.xml.UploadInitializationRequestElement;
 import org.kopi.ebics.xml.UploadTransferRequestElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -78,7 +78,7 @@ import org.kopi.ebics.xml.UploadTransferRequestElement;
  * @author Hachani
  */
 public class FileTransfer {
-    private static final Logger logger = LogManager.getLogger(FileTransfer.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileTransfer.class);
 
     private final EbicsSession session;
 
@@ -99,11 +99,11 @@ public class FileTransfer {
      * @throws IOException
      * @throws EbicsException
      */
-    public void sendFile(byte[] content, EbicsOrderType orderType)
+    public void sendFile(byte[] content, EbicsOrderType orderType, UploadService uploadService)
             throws IOException, EbicsException {
         HttpRequestSender sender = new HttpRequestSender(session);
         UploadInitializationRequestElement initializer = new UploadInitializationRequestElement(session,
-                orderType,
+                orderType, uploadService,
                 content);
         initializer.build();
         initializer.validate();
@@ -150,7 +150,8 @@ public class FileTransfer {
         int httpCode;
 
         Messages messages = new Messages(Constants.APPLICATION_BUNDLE_NAME);
-        logger.info(messages.getString("upload.segment", segmentNumber));
+        String logMessage = messages.getString("upload.segment", segmentNumber);
+        logger.info(logMessage);
         uploader = new UploadTransferRequestElement(session,
                 orderType,
                 segmentNumber,
@@ -183,6 +184,7 @@ public class FileTransfer {
      * @throws EbicsException server generated error
      */
     public void fetchFile(EbicsOrderType orderType,
+                          DownloadService downloadService,
                           Date start,
                           Date end,
                           File outputFile)
@@ -198,6 +200,7 @@ public class FileTransfer {
 
         sender = new HttpRequestSender(session);
         initializer = new DownloadInitializationRequestElement(session,
+                downloadService,
                 orderType,
                 start,
                 end);

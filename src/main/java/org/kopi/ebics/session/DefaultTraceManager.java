@@ -94,7 +94,7 @@ public class DefaultTraceManager implements TraceManager {
     }
 
     @Override
-    public void clear() {
+    public void clear() throws IOException {
         cache.clear();
     }
 

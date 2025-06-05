@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.interfaces.RSAPublicKey;
@@ -33,6 +32,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.apache.commons.codec.binary.Hex;
+import org.kopi.ebics.certificate.KeyUtil;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.InitLetter;
 import org.kopi.ebics.messages.Messages;
@@ -41,7 +41,7 @@ import org.kopi.ebics.messages.Messages;
 public abstract class AbstractInitLetter implements InitLetter {
 
     protected static final String BUNDLE_NAME = "org.kopi.ebics.letter.messages";
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String LINE_SEPARATOR = System.lineSeparator();
     protected final Messages messages;
     protected Locale locale;
     private Letter letter;
@@ -51,15 +51,9 @@ public abstract class AbstractInitLetter implements InitLetter {
      *
      * @param locale the application locale
      */
-    public AbstractInitLetter(Locale locale) {
+    protected AbstractInitLetter(Locale locale) {
         this.locale = locale;
         this.messages = new Messages(BUNDLE_NAME, locale);
-    }
-
-    private static byte[] removeFirstByte(byte[] byteArray) {
-        byte[] b = new byte[byteArray.length - 1];
-        System.arraycopy(byteArray, 1, b, 0, b.length);
-        return b;
     }
 
     @Override
@@ -84,8 +78,9 @@ public abstract class AbstractInitLetter implements InitLetter {
      * @param certificate the certificate content
      * @param hashTitle   the hash title
      * @param hash        the hash value
-     * @throws IOException
+     * @throws IOException if something is wrong with building the letter
      */
+    @SuppressWarnings("java:S107")
     protected void build(String hostId,
                          String bankName,
                          String userId,
@@ -119,38 +114,31 @@ public abstract class AbstractInitLetter implements InitLetter {
     }
 
     /**
-     * Returns the certificate hash
+     * Generates a SHA-256 hash of the given certificate and returns it as a byte array after formatting.
+     * <p>
+     * The certificate input is hashed using the SHA-256 algorithm. The resulting hash is encoded
+     * as a hexadecimal string , then passed through a custom {@code format} method
+     * (which should be defined elsewhere in the class), and finally converted back to a byte array.
+     * </p>
      *
-     * @param certificate the certificate
-     * @return the certificate hash
-     * @throws GeneralSecurityException
+     * @param certificate the input certificate in binary (DER) format, not {@code null}
+     * @return the formatted SHA-256 hash of the certificate as a byte array
+     * @throws GeneralSecurityException if the SHA-256 algorithm is not available
      */
     protected byte[] getHash(byte[] certificate) throws GeneralSecurityException {
-        String hash256 = new String(
-                Hex.encodeHex(MessageDigest.getInstance("SHA-256").digest(certificate), false));
+        // Calculate SHA-256 digest of the certificate
+        byte[] hash = MessageDigest.getInstance("SHA-256").digest(certificate);
+
+        // Convert binary hash to hexadecimal representation
+        String hash256 = new String(Hex.encodeHex(hash, false));
+
+        // Apply formatting (e.g. grouping, truncation, or custom processing)
         return format(hash256).getBytes();
     }
 
     protected byte[] getHash(RSAPublicKey publicKey) throws EbicsException {
-        String modulus;
-        String exponent;
-        String hash;
-        byte[] digest;
-
-        exponent = Hex.encodeHexString(publicKey.getPublicExponent().toByteArray());
-        modulus = Hex.encodeHexString(removeFirstByte(publicKey.getModulus().toByteArray()));
-        hash = exponent + " " + modulus;
-
-        if (hash.charAt(0) == '0') {
-            hash = hash.substring(1);
-        }
-
-        try {
-            digest = MessageDigest.getInstance("SHA-256", "BC").digest(hash.getBytes(StandardCharsets.US_ASCII));
-        } catch (GeneralSecurityException e) {
-            throw new EbicsException(e.getMessage(), e);
-        }
-
+        byte[] digest = KeyUtil.getDigest(publicKey);
+        // Format the hexadecimal digest and return as byte array
         return format(new String(Hex.encodeHex(digest, false))).getBytes();
     }
 
@@ -161,13 +149,13 @@ public abstract class AbstractInitLetter implements InitLetter {
      * @return the formatted hash
      */
     private String format(String hash256) {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         for (int i = 0; i < hash256.length(); i += 2) {
-            buffer.append(hash256.charAt(i));
-            buffer.append(hash256.charAt(i + 1));
-            buffer.append(' ');
+            builder.append(hash256.charAt(i));
+            builder.append(hash256.charAt(i + 1));
+            builder.append(' ');
         }
-        return buffer.substring(0, 48) + LINE_SEPARATOR + buffer.substring(48) + LINE_SEPARATOR;
+        return builder.substring(0, 48) + LINE_SEPARATOR + builder.substring(48) + LINE_SEPARATOR;
     }
 
     /**
@@ -199,6 +187,7 @@ public abstract class AbstractInitLetter implements InitLetter {
          * @param partnerId the partner ID
          * @param version   the signature version
          */
+        @SuppressWarnings("java:S107")
         public Letter(String title,
                       String hostId,
                       String bankName,
@@ -224,7 +213,6 @@ public abstract class AbstractInitLetter implements InitLetter {
          * @param certificate the certificate content
          * @param hashTitle   the hash title
          * @param hash        the hash content
-         * @throws IOException
          */
         public void build(String certTitle,
                           byte[] certificate,
@@ -247,7 +235,6 @@ public abstract class AbstractInitLetter implements InitLetter {
         /**
          * Builds the letter title.
          *
-         * @throws IOException
          */
         public void buildTitle() throws IOException {
             emit(title);
@@ -263,7 +250,6 @@ public abstract class AbstractInitLetter implements InitLetter {
         /**
          * Builds the letter header
          *
-         * @throws IOException
          */
         public void buildHeader() throws IOException {
             emit(messages.getString("Letter.date"));
@@ -307,7 +293,6 @@ public abstract class AbstractInitLetter implements InitLetter {
          *
          * @param title the title
          * @param cert  the certificate core
-         * @throws IOException
          */
         public void buildCertificate(String title, byte[] cert)
                 throws IOException {
@@ -326,7 +311,6 @@ public abstract class AbstractInitLetter implements InitLetter {
          *
          * @param title the title
          * @param hash  the hash value
-         * @throws IOException
          */
         public void buildHash(String title, byte[] hash)
                 throws IOException {
@@ -346,7 +330,6 @@ public abstract class AbstractInitLetter implements InitLetter {
         /**
          * Builds the footer section
          *
-         * @throws IOException
          */
         public void buildFooter() throws IOException {
             emit(messages.getString("Letter.date"));
@@ -357,7 +340,6 @@ public abstract class AbstractInitLetter implements InitLetter {
         /**
          * Appends a spacer
          *
-         * @throws IOException
          */
         public void appendSpacer() throws IOException {
             emit("        ");
@@ -367,7 +349,6 @@ public abstract class AbstractInitLetter implements InitLetter {
          * Emits a text to the writer
          *
          * @param text the text to print
-         * @throws IOException
          */
         public void emit(String text) throws IOException {
             writer.write(text);

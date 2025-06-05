@@ -21,7 +21,7 @@ public abstract class SepaXmlDocumentBuilder implements Serializable {
         return result;
     }
 
-    protected static XMLGregorianCalendar dateToXmlGregorianCalendarDate(Date d) throws EbicsException {
+    public static XMLGregorianCalendar dateToXmlGregorianCalendarDate(Date d) throws EbicsException {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(d);
         return calendarToXmlGregorianCalendarDate(cal);

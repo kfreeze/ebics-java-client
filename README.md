@@ -1,6 +1,17 @@
 EBICS Java Client
 =====
 
+## Changes to the original:
+
+- Took some inspiration and code from: [ebics-java-web-client](https://github.com/spaced/ebics-web-client/tree/master)
+
+- Updated to EBICS 3.0 (H005)
+- Dependency Updates and Java 21
+- Added [pain.008.001.08.xsd](src/main/xsd/pain.008.001.08.xsd) and a DocumentBuilder for it, mainly used for SDD
+- Added german error translations
+- Code Cleanup, refactoring and fixed some sonar issues
+- Updated to Version 1.3
+
 This library allows to interact with banks using the EBICS (Electronic Banking Internet Communication Standard)
 
 You can use the `EbicsClient` as command line tool or use it from your Java application.

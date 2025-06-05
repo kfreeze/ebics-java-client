@@ -106,10 +106,10 @@ public class HttpRequestSender {
         method.setEntity(requestEntity);
         method.setHeader(HttpHeaders.CONTENT_TYPE, "text/xml; charset=ISO-8859-1");
 
-        try (CloseableHttpResponse response = httpClient.execute(method)) {
+        try (CloseableHttpResponse closeableHttpResponse = httpClient.execute(method)) {
             this.response = new ByteArrayContentFactory(
-                    EntityUtils.toByteArray(response.getEntity()));
-            return response.getStatusLine().getStatusCode();
+                    EntityUtils.toByteArray(closeableHttpResponse.getEntity()));
+            return closeableHttpResponse.getStatusLine().getStatusCode();
         }
     }
 

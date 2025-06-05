@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.net.URI;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
@@ -41,8 +42,6 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.exception.NoDownloadDataAvailableException;
@@ -60,6 +59,8 @@ import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.session.OrderType;
 import org.kopi.ebics.session.Product;
 import org.kopi.ebics.utils.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The ebics client application. Performs necessary tasks to contact the ebics
@@ -67,7 +68,8 @@ import org.kopi.ebics.utils.Constants;
  * also performs the files transfer including uploads and downloads.
  */
 public class EbicsClient {
-    private static final Logger logger = LogManager.getLogger(EbicsClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(EbicsClient.class);
+    public static final String SKIP_ORDER = "skip_order";
 
     static {
         // this is for the logging config
@@ -124,11 +126,10 @@ public class EbicsClient {
 
     public static EbicsClient createEbicsClient(File rootDir, File configFile) throws IOException {
         ConfigProperties properties = new ConfigProperties(configFile);
-        final String country = properties.get("countryCode").toUpperCase();
         final String language = properties.get("languageCode").toLowerCase();
         final String productName = properties.get("productName");
 
-        final Locale locale = new Locale(language, country);
+        final Locale locale = Locale.forLanguageTag(language);
 
         DefaultConfiguration configuration = new DefaultConfiguration(rootDir.getAbsolutePath(),
                 properties.properties) {
@@ -168,7 +169,7 @@ public class EbicsClient {
 
         addOption(options, OrderType.XKD, "Send payment order file (DTA format)");
 
-        options.addOption(null, "skip_order", true, "Skip a number of order ids");
+        options.addOption(null, SKIP_ORDER, true, "Skip a number of order ids");
 
         options.addOption("o", "output", true, "output file");
         options.addOption("i", "input", true, "input file");
@@ -208,7 +209,7 @@ public class EbicsClient {
         for (EbicsOrderType type : fetchFileOrders) {
             if (hasOption(cmd, type)) {
                 client.fetchFile(getOutputFile(outputFileValue), client.defaultUser,
-                        client.defaultProduct, type, false, null, null);
+                        client.defaultProduct, type, null, false, null, null);
                 break;
             }
         }
@@ -217,13 +218,13 @@ public class EbicsClient {
         for (EbicsOrderType type : sendFileOrders) {
             if (hasOption(cmd, type)) {
                 client.sendFile(new File(inputFileValue), client.defaultUser,
-                        client.defaultProduct, type);
+                        client.defaultProduct, type, null);
                 break;
             }
         }
 
-        if (cmd.hasOption("skip_order")) {
-            int count = Integer.parseInt(cmd.getOptionValue("skip_order"));
+        if (cmd.hasOption(SKIP_ORDER)) {
+            int count = Integer.parseInt(cmd.getOptionValue(SKIP_ORDER));
             while (count-- > 0) {
                 client.defaultUser.getPartner().nextOrderId();
             }
@@ -503,7 +504,7 @@ public class EbicsClient {
      *
      * @throws Exception
      */
-    public void sendFile(File file, User user, Product product, EbicsOrderType orderType) throws Exception {
+    public void sendFile(File file, User user, Product product, EbicsOrderType orderType, UploadService uploadService) throws Exception {
         EbicsSession session = createSession(user, product);
 
         FileTransfer transferManager = new FileTransfer(session);
@@ -512,19 +513,18 @@ public class EbicsClient {
                 configuration.getTransferTraceDirectory(user));
 
         try {
-            transferManager.sendFile(IOUtils.getFileContent(file), orderType);
+            transferManager.sendFile(IOUtils.getFileContent(file), orderType, uploadService);
         } catch (IOException | EbicsException e) {
-            logger
-                    .error(messages.getString("upload.file.error", file.getAbsolutePath()), e);
+            logger.error(messages.getString("upload.file.error", file.getAbsolutePath()), e);
             throw e;
         }
     }
 
-    public void sendFile(File file, EbicsOrderType orderType) throws Exception {
-        sendFile(file, defaultUser, defaultProduct, orderType);
+    public void sendFile(File file, EbicsOrderType orderType, UploadService uploadService) throws Exception {
+        sendFile(file, defaultUser, defaultProduct, orderType, uploadService);
     }
 
-    public void fetchFile(File file, User user, Product product, EbicsOrderType orderType,
+    public void fetchFile(File file, User user, Product product, EbicsOrderType orderType, DownloadService downloadService,
                           boolean isTest, Date start, Date end) throws IOException, EbicsException {
         FileTransfer transferManager;
         EbicsSession session = createSession(user, product);
@@ -538,7 +538,7 @@ public class EbicsClient {
                 configuration.getTransferTraceDirectory(user));
 
         try {
-            transferManager.fetchFile(orderType, start, end, file);
+            transferManager.fetchFile(orderType, downloadService, start, end, file);
         } catch (NoDownloadDataAvailableException e) {
             // don't log this exception as an error, caller can decide how to handle
             throw e;
@@ -548,9 +548,9 @@ public class EbicsClient {
         }
     }
 
-    public void fetchFile(File file, EbicsOrderType orderType, Date start, Date end) throws IOException,
+    public void fetchFile(File file, EbicsOrderType orderType, DownloadService downloadService, Date start, Date end) throws IOException,
             EbicsException {
-        fetchFile(file, defaultUser, defaultProduct, orderType, false, start, end);
+        fetchFile(file, defaultUser, defaultProduct, orderType, downloadService, false, start, end);
     }
 
     /**
@@ -606,7 +606,7 @@ public class EbicsClient {
         String userOrg = properties.get("user.org");
         boolean useCertificates = false;
         boolean saveCertificates = true;
-        return createUser(new URL(bankUrl), bankName, hostId, partnerId, userId, userName, userEmail,
+        return createUser(new URI(bankUrl).toURL(), bankName, hostId, partnerId, userId, userName, userEmail,
                 userCountry, userOrg, useCertificates, saveCertificates, pwdHandler);
     }
 

@@ -19,6 +19,8 @@
 
 package org.kopi.ebics.interfaces;
 
+import java.io.IOException;
+
 import org.kopi.ebics.exception.EbicsException;
 
 /**
@@ -52,7 +54,7 @@ public interface TraceManager {
     /**
      * Clears the traces created for a given ebics session
      */
-    void clear();
+    void clear() throws IOException;
 
     /**
      * Sets the trace directory

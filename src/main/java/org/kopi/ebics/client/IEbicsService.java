@@ -1,139 +1,134 @@
 package org.kopi.ebics.client;
 
+
 /**
- * Generic interface representing a Business Transaction Format (BTF)
- * used in EBICS 3.0 for both upload (e.g. BTU) and download (e.g. BTD) operations.
+ * Interface representing a logical EBICS service configuration.
  * <p>
- * EBICS 3.0 replaces the older {@code OrderAttribute} mechanism with
- * a semantically rich description via BTF elements. This interface provides access
- * to the standard BTF fields as defined in EBICS 3.0 specification.
+ * This interface abstracts the attributes relevant to the EBICS BTF (Business Transaction Format)
+ * parameters as used in EBICS 3.0 uploads and downloads, such as service name, option, scope,
+ * message type, and container behavior.
+ * </p>
  * <p>
- * Implementations should return the appropriate values for a specific
- * service such as SEPA Direct Debit, Credit Transfer, or account statements.
+ * Implementations typically provide metadata to generate or validate EBICS requests,
+ * such as BTU/BTD OrderTypes and their associated parameters.
+ * </p>
  *
- * @see <a href="https://www.ebics.org">EBICS Official Site</a>
+ * <p><b>Typical usage:</b></p>
+ * <pre>
+ * {@code
+ *     IEbicsService service = new UploadService();
+ *     if (service.isSignatureFlag()) {
+ *         // enforce EDS requirement
+ *     }
+ * }
+ * </pre>
+ *
  */
 public interface IEbicsService {
 
     /**
-     * Returns the BTF service name.
+     * Gets the EBICS BTF service name (e.g., "SDD", "EOP", "B2C").
      * <p>
-     * Examples:
+     * This element identifies the core business context of the transaction, such as
+     * SEPA Direct Debit (SDD) or account reporting (EOP).
+     *
+     * @return the EBICS service name as a non-null uppercase string
+     */
+    String serviceName();
+
+    /**
+     * Gets the service option value, which further refines the service context.
+     * <p>
+     * Examples: "COR", "B2B", "CCT", "C52". Some service options are mandatory
+     * in conjunction with the service name, especially in SEPA scenarios.
+     *
+     * @return the EBICS service option, or null if not applicable
+     */
+    String serviceOption();
+
+    /**
+     * Gets the applicable scope of the service definition.
+     * <p>
+     * Scope defines the market or bilateral context under which the service is valid.
+     * Typical values are:
      * <ul>
-     *     <li>{@code "SDD"} – SEPA Direct Debit</li>
-     *     <li>{@code "CCT"} – SEPA Credit Transfer</li>
-     *     <li>{@code "CAMT"} – Account statement (download)</li>
+     *   <li>"DE" – national (Germany)</li>
+     *   <li>"GLB" – globally defined</li>
+     *   <li>"BIL" – bilaterally defined (between bank and partner)</li>
      * </ul>
      *
-     * @return the service name component of the BTF (never {@code null})
+     * @return the EBICS BTF scope (2-letter ISO country code or reserved EBICS keyword)
      */
-    String getServiceName();
+    String scope();
 
     /**
-     * Returns the BTF service option (e.g. execution method or variant).
+     * Returns the type of container used in EBICS data transfer.
      * <p>
-     * Examples:
+     * Values may include:
      * <ul>
-     *     <li>{@code "COR"} – COR1 Direct Debit</li>
-     *     <li>{@code "B2B"} – Business-to-business Direct Debit</li>
-     *     <li>{@code "URN"} – Urgent transfer</li>
+     *   <li>"XML" – plain XML structure</li>
+     *   <li>"ZIP" – compressed container format (e.g., camt.053 in zip)</li>
      * </ul>
      *
-     * @return the service option component of the BTF (never {@code null})
+     * @return the container type as a string, or null if not applicable
      */
-    String getServiceOption();
+    String containerType();
 
     /**
-     * Returns the geographical or national scope of the transaction.
+     * Gets the message name (MsgName) used in this service.
      * <p>
-     * This value is optional and may be empty or {@code null} depending on the BTF specification.
-     * For example, {@code "DE"} for Germany or {@code "EU"} for Eurozone-wide formats.
+     * This usually refers to the ISO 20022 message name like "pain.008", "camt.053", "pain.001".
+     * It is used to validate the payload and build the BTF parameters.
      *
-     * @return the optional scope string, or {@code null} if not applicable
+     * @return the message name as a string (e.g., "pain.008")
      */
-    String getScope();
+    String messageName();
 
     /**
-     * Returns the container type for the transaction content.
+     * Returns the message format string (optional).
      * <p>
-     * Typical values:
-     * <ul>
-     *     <li>{@code "XML"} – for structured SEPA message files</li>
-     *     <li>{@code "ZIP"} – for zipped payloads</li>
-     *     <li>{@code "TXT"} – for plain text files</li>
-     * </ul>
+     * This may be used to distinguish between "XML" and "SWIFT" or between different formatting standards.
+     * Not always used in EBICS 3.0 BTF definitions.
      *
-     * @return the container type string (defaults to {@code "XML"})
+     * @return the message format identifier or null if not defined
      */
-    default String getContainerType() {
-        return "XML";
-    }
+    String messageFormat();
 
     /**
-     * Returns the name of the message type being exchanged.
+     * Gets the variant of the message type.
      * <p>
-     * Examples:
-     * <ul>
-     *     <li>{@code "pain.008"} – Direct Debit</li>
-     *     <li>{@code "pain.001"} – Credit Transfer</li>
-     *     <li>{@code "camt.053"} – Account statement</li>
-     * </ul>
+     * Variants might be used when multiple dialects of the same message exist
+     * (e.g., bank-specific or market-specific adjustments).
      *
-     * @return the message name (never {@code null})
+     * @return the message variant identifier, or null if not applicable
      */
-    String getMessageName();
+    String messageVariant();
 
     /**
-     * Returns the message format of the transaction.
+     * Gets the specific version of the message, typically aligned with ISO 20022 schema versions.
      * <p>
-     * Most transactions will use {@code "ISO"} for ISO 20022 messages.
+     * Example: "001.08" for "pain.008.001.08"
      *
-     * @return the format identifier (e.g., {@code "ISO"})
+     * @return the message version part as a string (e.g., "001.08")
      */
-    String getMessageFormat();
+    String messageVersion();
 
     /**
-     * Returns the message variant to further qualify the message format.
+     * Indicates whether this service mandates the EBICS <SignatureFlag> element.
      * <p>
-     * This may differentiate between country-specific implementations or bank-specific variants.
+     * If true, the service should include <SignatureFlag requestEDS="true"/> in the request,
+     * meaning that the transaction is expected to go through the Electronic Distributed Signature (VEU) process.
      *
-     * @return the variant string, or {@code null} if not applicable
+     * @return true if <SignatureFlag requestEDS="true"/> is required, false otherwise
      */
-    String getMessageVariant();
+    boolean signatureFlag();
 
     /**
-     * Returns the version of the message schema being used.
+     * Indicates whether an EBICS VEU (Electronic Distributed Signature) process is enabled for this service.
      * <p>
-     * Examples:
-     * <ul>
-     *     <li>{@code "08"} for {@code pain.008.001.08}</li>
-     *     <li>{@code "04"} for {@code camt.053.001.04}</li>
-     * </ul>
+     * This may be used to drive validation logic or UI workflows that require additional signers.
      *
-     * @return the message version number (e.g., {@code "08"})
+     * @return true if the service supports or expects VEU (EDS), false otherwise
      */
-    String getMessageVersion();
-
-    /**
-     * Indicates whether the transaction requires the signature flag to be set.
-     * <p>
-     * This is usually {@code true} for upload operations (e.g., BTU),
-     * but {@code false} for most download operations (e.g., BTD).
-     *
-     * @return {@code true} if a user signature is required; {@code false} otherwise
-     */
-    default boolean isSignatureFlag() {
-        return false;
-    }
-
-    /**
-     * Indicates whether the transaction requires the EDS (Electronic Distributed Signature) flag.
-     * <p>
-     * EDS is typically used in multi-user signature workflows.
-     *
-     * @return {@code true} if EDS flag should be activated; {@code false} otherwise
-     */
-    default boolean isEdsFlag() {
-        return false;
-    }
+    boolean edsFlag();
 }

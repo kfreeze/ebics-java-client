@@ -53,11 +53,11 @@ public class DownloadInitializationRequestElement extends InitializationRequestE
 
     private static final long serialVersionUID = 3776072549761880272L;
 
-
     private final Date startRange;
 
-
     private final Date endRange;
+
+    private final transient DownloadService downloadService;
 
     /**
      * Constructs a new <code>DInitializationRequestElement</code> for downloads initializations.
@@ -66,14 +66,14 @@ public class DownloadInitializationRequestElement extends InitializationRequestE
      * @param type       the download order type (FDL, HTD, HPD)
      * @param startRange the start range download
      * @param endRange   the end range download
-     * @throws EbicsException
      */
     public DownloadInitializationRequestElement(EbicsSession session,
+                                                DownloadService downloadService,
                                                 EbicsOrderType type,
                                                 Date startRange,
-                                                Date endRange)
-            throws EbicsException {
+                                                Date endRange) {
         super(session, type, generateName(type));
+        this.downloadService = downloadService;
         this.startRange = startRange;
         this.endRange = endRange;
     }
@@ -104,7 +104,6 @@ public class DownloadInitializationRequestElement extends InitializationRequestE
         bankPubKeyDigests = EbicsXmlFactory.createBankPubKeyDigests(authentication, encryption);
         adminOrderType = EbicsXmlFactory.createAdminOrderType(type.getCode());
         if (type.equals(OrderType.BTD)) {
-            DownloadService downloadService = new DownloadService();
             BTDParamsType btdParamsType = EbicsXmlFactory.createBTDParamsType(downloadService, startRange, endRange);
 
             if (Boolean.getBoolean(session.getSessionParam("TEST"))) {

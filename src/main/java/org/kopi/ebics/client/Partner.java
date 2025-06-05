@@ -41,7 +41,7 @@ public class Partner implements EbicsPartner, Savable {
     private final EbicsBank bank;
     private final String partnerId;
     private int orderId = 10 * 36 * 36 * 36;
-    private transient boolean needSave;
+    private boolean needSave;
 
     /**
      * Reconstructs a persisted EBICS customer.

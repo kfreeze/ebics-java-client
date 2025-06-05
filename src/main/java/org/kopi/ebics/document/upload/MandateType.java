@@ -1,7 +1,7 @@
 package org.kopi.ebics.document.upload;
 
-import iso.std.iso._20022.tech.xsd.pain_008_001.SequenceType3Code;
 
+import iso.std.iso._20022.tech.xsd.pain_008_001.SequenceType3Code;
 
 public enum MandateType {
 

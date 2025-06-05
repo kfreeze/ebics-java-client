@@ -41,6 +41,10 @@ import org.kopi.ebics.interfaces.PasswordCallback;
  */
 public class CertificateManager {
 
+    public static final String A_005 = "-A005";
+    public static final String X_002 = "-X002";
+    public static final String E_002 = "-E002";
+
     private final X509Generator generator;
     private final EbicsUser user;
     private X509Certificate a005Certificate;
@@ -57,9 +61,6 @@ public class CertificateManager {
 
     /**
      * Creates the certificates for the user
-     *
-     * @throws GeneralSecurityException
-     * @throws IOException
      */
     public void create() throws GeneralSecurityException, IOException {
         Calendar calendar;
@@ -91,8 +92,6 @@ public class CertificateManager {
      * Creates the signature certificate.
      *
      * @param end the expiration date of a the certificate.
-     * @throws GeneralSecurityException
-     * @throws IOException
      */
     public void createA005Certificate(Date end) throws GeneralSecurityException, IOException {
         KeyPair keypair;
@@ -109,8 +108,6 @@ public class CertificateManager {
      * Creates the authentication certificate.
      *
      * @param end the expiration date of a the certificate.
-     * @throws GeneralSecurityException
-     * @throws IOException
      */
     public void createX002Certificate(Date end) throws GeneralSecurityException, IOException {
         KeyPair keypair;
@@ -127,8 +124,6 @@ public class CertificateManager {
      * Creates the encryption certificate.
      *
      * @param end the expiration date of a the certificate.
-     * @throws GeneralSecurityException
-     * @throws IOException
      */
     public void createE002Certificate(Date end) throws GeneralSecurityException, IOException {
         KeyPair keypair;
@@ -146,8 +141,6 @@ public class CertificateManager {
      *
      * @param path        the certificates path
      * @param pwdCallBack the password call back
-     * @throws GeneralSecurityException
-     * @throws IOException
      */
     public void save(String path, PasswordCallback pwdCallBack)
             throws GeneralSecurityException, IOException {
@@ -159,8 +152,6 @@ public class CertificateManager {
      *
      * @param path        the key store path
      * @param pwdCallBack the password call back
-     * @throws GeneralSecurityException
-     * @throws IOException
      */
     public void load(String path, PasswordCallback pwdCallBack)
             throws GeneralSecurityException, IOException {
@@ -169,13 +160,13 @@ public class CertificateManager {
         loader = new KeyStoreManager();
 
         loader.load(path, pwdCallBack.getPassword());
-        a005Certificate = loader.getCertificate(user.getUserId() + "-A005");
-        x002Certificate = loader.getCertificate(user.getUserId() + "-X002");
-        e002Certificate = loader.getCertificate(user.getUserId() + "-E002");
+        a005Certificate = loader.getCertificate(user.getUserId() + A_005);
+        x002Certificate = loader.getCertificate(user.getUserId() + X_002);
+        e002Certificate = loader.getCertificate(user.getUserId() + E_002);
 
-        a005PrivateKey = loader.getPrivateKey(user.getUserId() + "-A005");
-        x002PrivateKey = loader.getPrivateKey(user.getUserId() + "-X002");
-        e002PrivateKey = loader.getPrivateKey(user.getUserId() + "-E002");
+        a005PrivateKey = loader.getPrivateKey(user.getUserId() + A_005);
+        x002PrivateKey = loader.getPrivateKey(user.getUserId() + X_002);
+        e002PrivateKey = loader.getPrivateKey(user.getUserId() + E_002);
         setUserCertificates();
     }
 
@@ -184,11 +175,10 @@ public class CertificateManager {
      *
      * @param filename the key store file name
      * @param password the key password
-     * @throws IOException
      */
     public void writePKCS12Certificate(String filename, char[] password)
             throws GeneralSecurityException, IOException {
-        if (filename == null || "".equals(filename)) {
+        if (filename == null || filename.isEmpty()) {
             throw new IOException("The file name cannot be empty");
         }
 
@@ -206,8 +196,6 @@ public class CertificateManager {
      *
      * @param password the key store password
      * @param fos      the output stream
-     * @throws GeneralSecurityException
-     * @throws IOException
      */
     public void writePKCS12Certificate(char[] password, OutputStream fos)
             throws GeneralSecurityException, IOException {
@@ -215,15 +203,15 @@ public class CertificateManager {
 
         keystore = KeyStore.getInstance("PKCS12", new BouncyCastleProvider());
         keystore.load(null, null);
-        keystore.setKeyEntry(user.getUserId() + "-A005",
+        keystore.setKeyEntry(user.getUserId() + A_005,
                 a005PrivateKey,
                 password,
                 new X509Certificate[]{a005Certificate});
-        keystore.setKeyEntry(user.getUserId() + "-X002",
+        keystore.setKeyEntry(user.getUserId() + X_002,
                 x002PrivateKey,
                 password,
                 new X509Certificate[]{x002Certificate});
-        keystore.setKeyEntry(user.getUserId() + "-E002",
+        keystore.setKeyEntry(user.getUserId() + E_002,
                 e002PrivateKey,
                 password,
                 new X509Certificate[]{e002Certificate});

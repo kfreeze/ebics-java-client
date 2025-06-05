@@ -1,6 +1,5 @@
 package org.kopi.ebics.document.upload.cdd;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -15,6 +14,7 @@ import iso.std.iso._20022.tech.xsd.pain_008_001.CustomerDirectDebitInitiationV08
 import iso.std.iso._20022.tech.xsd.pain_008_001.DirectDebitTransaction10;
 import iso.std.iso._20022.tech.xsd.pain_008_001.DirectDebitTransactionInformation23;
 import iso.std.iso._20022.tech.xsd.pain_008_001.Document;
+import iso.std.iso._20022.tech.xsd.pain_008_001.DocumentDocument;
 import iso.std.iso._20022.tech.xsd.pain_008_001.FinancialInstitutionIdentification18;
 import iso.std.iso._20022.tech.xsd.pain_008_001.GenericPersonIdentification1;
 import iso.std.iso._20022.tech.xsd.pain_008_001.GroupHeader83;
@@ -30,9 +30,7 @@ import iso.std.iso._20022.tech.xsd.pain_008_001.PersonIdentification13;
 import iso.std.iso._20022.tech.xsd.pain_008_001.PersonIdentificationSchemeName1Choice;
 import iso.std.iso._20022.tech.xsd.pain_008_001.RemittanceInformation16;
 import iso.std.iso._20022.tech.xsd.pain_008_001.ServiceLevel8Choice;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Marshaller;
+import org.apache.xmlbeans.XmlOptions;
 import org.kopi.ebics.document.upload.MandateType;
 import org.kopi.ebics.document.upload.SepaXmlDocumentBuilder;
 import org.kopi.ebics.exception.EbicsException;
@@ -41,31 +39,29 @@ import org.kopi.ebics.exception.EbicsException;
 public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
 
     public static String toXml(DirectDebitDocumentData ddd) throws EbicsException {
+        DocumentDocument parent = DocumentDocument.Factory.newInstance();
+
         //sepa xml document
-        Document doc = Document.Factory.newInstance();
+        Document doc = parent.addNewDocument();
+        doc.addNewCstmrDrctDbtInitn();
 
         // CustomerDirectDebitInitiationV08
-        CustomerDirectDebitInitiationV08 cddiv = CustomerDirectDebitInitiationV08.Factory.newInstance();
-        doc.setCstmrDrctDbtInitn(cddiv);
-
+        CustomerDirectDebitInitiationV08 cddiv = doc.getCstmrDrctDbtInitn();
         //group header
         cddiv.setGrpHdr(createGroupHeaderSdd(ddd));
-
         cddiv.getPmtInfList().addAll(createPaymentInstructions(ddd));
 
-        StringWriter resultWriter = new StringWriter();
+        XmlOptions xmlOptions = new XmlOptions()
+                .setSaveNamespacesFirst()
+                .setSavePrettyPrint()
+                .setSavePrettyPrintIndent(2) // optional: improves readability
+                .setSaveNoXmlDecl(false) // include <?xml ...?>
+                .setSaveOuter() // required for <Document> and <?xml...?>
+                .setUseDefaultNamespace()
+                .setSaveAggressiveNamespaces()
+                .setCharacterEncoding("UTF-8");
 
-        try {
-            JAXBContext jaxbCtx = JAXBContext.newInstance(Document.class);
-            Marshaller marshaller = jaxbCtx.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8"); //NOI18N
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            marshaller.marshal(doc, resultWriter);
-            return resultWriter.toString();
-        } catch (JAXBException e) {
-            // If something crashes here it needs to be fixed in the library, not by the user.
-            throw new EbicsException("could not marshal java object to XML", e);
-        }
+        return parent.xmlText(xmlOptions);
     }
 
     private static List<PaymentInstruction29> createPaymentInstructions(DirectDebitDocumentData ddd) throws EbicsException {
@@ -147,7 +143,6 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
 
         // transaction information
         result.setDrctDbtTx(createDirectDebitTransaction(p, ddd));
-        result.setDrctDbtTx(createDirectDebitTransaction(p, ddd));
 
         // debitor bic
         result.setDbtrAgt(bicToBranchAndFinancialInstitutionIdentification(p.getDebitorBic()));
@@ -188,12 +183,12 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
 
         // person identification - (creditor identifier)
         GenericPersonIdentification1 inf = GenericPersonIdentification1.Factory.newInstance();
-        result.getCdtrSchmeId().getId().getPrvtId().getOthrList().add(inf);
         inf.setId(ddd.getCreditorIdentifier());
 
         // whatever, fixed to SEPA
         inf.setSchmeNm(PersonIdentificationSchemeName1Choice.Factory.newInstance());
         inf.getSchmeNm().setPrtry("SEPA");
+        result.getCdtrSchmeId().getId().getPrvtId().getOthrList().add(inf);
 
         return result;
     }
@@ -203,8 +198,9 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
         ServiceLevel8Choice serviceLevel8Choice = ServiceLevel8Choice.Factory.newInstance();
         serviceLevel8Choice.setCd("SEPA");
         paymentType.getSvcLvlList().add(serviceLevel8Choice);
-        paymentType.setLclInstrm(LocalInstrument2Choice.Factory.newInstance());
-        paymentType.getLclInstrm().setCd("CORE");
+        LocalInstrument2Choice localInstrument2Choice = LocalInstrument2Choice.Factory.newInstance();
+        localInstrument2Choice.setCd("SEPA");
+        paymentType.setLclInstrm(localInstrument2Choice);
         paymentType.setSeqTp(mandateType.getSepaSequenceType3Code());
         return paymentType;
     }
@@ -235,8 +231,9 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
 
     protected static BranchAndFinancialInstitutionIdentification6 bicToBranchAndFinancialInstitutionIdentification(String bic) {
         BranchAndFinancialInstitutionIdentification6 result = BranchAndFinancialInstitutionIdentification6.Factory.newInstance();
-        result.setFinInstnId(FinancialInstitutionIdentification18.Factory.newInstance());
-        result.getFinInstnId().setBICFI(bic);
+        FinancialInstitutionIdentification18 financialInstitutionIdentification18 = FinancialInstitutionIdentification18.Factory.newInstance();
+        financialInstitutionIdentification18.setBICFI(bic);
+        result.setFinInstnId(financialInstitutionIdentification18);
         return result;
     }
 }

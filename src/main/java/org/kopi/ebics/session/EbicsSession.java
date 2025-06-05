@@ -19,12 +19,10 @@
 
 package org.kopi.ebics.session;
 
-import java.io.IOException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.kopi.ebics.exception.EbicsException;
 import org.kopi.ebics.interfaces.Configuration;
 import org.kopi.ebics.interfaces.EbicsUser;
 
@@ -50,7 +48,7 @@ public class EbicsSession {
     public EbicsSession(EbicsUser user, Configuration configuration) {
         this.user = user;
         this.configuration = configuration;
-        parameters = new HashMap<String, String>();
+        parameters = new HashMap<>();
     }
 
     /**
@@ -58,10 +56,8 @@ public class EbicsSession {
      * The key will be fetched automatically form the bank if needed.
      *
      * @return the banks encryption key.
-     * @throws IOException    Communication error during key retrieval.
-     * @throws EbicsException Server error message generated during key retrieval.
      */
-    public RSAPublicKey getBankE002Key() throws IOException, EbicsException {
+    public RSAPublicKey getBankE002Key() {
         return user.getPartner().getBank().getE002Key();
     }
 
@@ -70,10 +66,8 @@ public class EbicsSession {
      * The key will be fetched automatically form the bank if needed.
      *
      * @return the banks authentication key.
-     * @throws IOException    Communication error during key retrieval.
-     * @throws EbicsException Server error message generated during key retrieval.
      */
-    public RSAPublicKey getBankX002Key() throws IOException, EbicsException {
+    public RSAPublicKey getBankX002Key() {
         return user.getPartner().getBank().getX002Key();
     }
 
@@ -81,9 +75,8 @@ public class EbicsSession {
      * Returns the bank id.
      *
      * @return the bank id.
-     * @throws EbicsException
      */
-    public String getBankID() throws EbicsException {
+    public String getBankID() {
         return user.getPartner().getBank().getHostId();
     }
 

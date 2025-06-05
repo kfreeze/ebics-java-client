@@ -67,6 +67,7 @@ import org.kopi.ebics.schema.h005.ParameterDocument.Parameter;
 import org.kopi.ebics.schema.h005.ParameterDocument.Parameter.Value;
 import org.kopi.ebics.schema.h005.ProductElementType;
 import org.kopi.ebics.schema.h005.RestrictedServiceType;
+import org.kopi.ebics.schema.h005.SignatureFlagType;
 import org.kopi.ebics.schema.h005.StandardOrderParamsDocument;
 import org.kopi.ebics.schema.h005.StandardOrderParamsType;
 import org.kopi.ebics.schema.h005.StaticHeaderOrderDetailsType;
@@ -85,7 +86,6 @@ import org.kopi.ebics.schema.s002.UserSignatureDataDocument;
 import org.kopi.ebics.schema.s002.UserSignatureDataSigBookType;
 import org.kopi.ebics.schema.xmldsig.CanonicalizationMethodType;
 import org.kopi.ebics.schema.xmldsig.DigestMethodType;
-import org.kopi.ebics.schema.xmldsig.RSAKeyValueType;
 import org.kopi.ebics.schema.xmldsig.ReferenceType;
 import org.kopi.ebics.schema.xmldsig.SignatureMethodType;
 import org.kopi.ebics.schema.xmldsig.SignatureType;
@@ -106,6 +106,10 @@ import org.kopi.ebics.schema.xmldsig.X509DataType;
  * @see XmlObject
  */
 public class EbicsXmlFactory {
+
+    private EbicsXmlFactory() {
+        //empty constructor
+    }
 
     /**
      * Creates a new <code>SignedInfoDocument</code> XML object
@@ -368,21 +372,6 @@ public class EbicsXmlFactory {
         return newX509DataType;
     }
 
-    /**
-     * Creates a new <code>RSAKeyValueType</code> XML object
-     *
-     * @param exponent the public exponent of the public key
-     * @param modulus  the modulus of the public key
-     * @return the <code>RSAKeyValueType</code> XML object
-     */
-    public static RSAKeyValueType createRSAKeyValueType(byte[] exponent, byte[] modulus) {
-        RSAKeyValueType newRSAKeyValueType = RSAKeyValueType.Factory.newInstance();
-        newRSAKeyValueType.setExponent(exponent);
-        newRSAKeyValueType.setModulus(modulus);
-
-        return newRSAKeyValueType;
-    }
-
     //-----------------------------------------------------------------------------------------------------------------------------------------------
 
     /**
@@ -401,16 +390,12 @@ public class EbicsXmlFactory {
     /**
      * Creates a new <code>EbicsUnsecuredRequest</code> XML object
      *
-     * @param header   the <code>Header</code> element
-     * @param body     the <code>Body</code> element
-     * @param revision the current revision
-     * @param version  the current version
+     * @param header the <code>Header</code> element
+     * @param body   the <code>Body</code> element
      * @return the <code>EbicsUnsecuredRequest</code> XML object
      */
     public static EbicsUnsecuredRequest createEbicsUnsecuredRequest(Header header,
-                                                                    Body body,
-                                                                    int revision,
-                                                                    String version) {
+                                                                    Body body) {
         EbicsUnsecuredRequest newEbicsUnsecuredRequest = EbicsUnsecuredRequest.Factory.newInstance();
         newEbicsUnsecuredRequest.setHeader(header);
         newEbicsUnsecuredRequest.setBody(body);
@@ -445,9 +430,7 @@ public class EbicsXmlFactory {
      * @return the <code>EmptyMutableHeaderType</code> XML object
      */
     public static EmptyMutableHeaderType createEmptyMutableHeaderType() {
-        EmptyMutableHeaderType newEmptyMutableHeaderType = EmptyMutableHeaderType.Factory.newInstance();
-
-        return newEmptyMutableHeaderType;
+        return EmptyMutableHeaderType.Factory.newInstance();
     }
 
     /**
@@ -501,7 +484,6 @@ public class EbicsXmlFactory {
      *
      * @return the <code>OrderDetailsType</code> XML object
      */
-    @SuppressWarnings("deprecation")
     public static OrderDetailsType createOrderDetailsType(String adminOrderType) {
         OrderDetailsType newOrderDetailsType = OrderDetailsType.Factory.newInstance();
         newOrderDetailsType.setAdminOrderType(adminOrderType);
@@ -624,15 +606,11 @@ public class EbicsXmlFactory {
     /**
      * Creates a new <code>EbicsNoPubKeyDigestsRequest</code> XML object
      *
-     * @param revision the default revision
-     * @param version  the default version
      * @param header   the <code>org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header</code> element
      * @param body     the <code>org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body</code> element
      * @return the <code>EbicsNoPubKeyDigestsRequest</code> XML object
      */
-    public static EbicsNoPubKeyDigestsRequest createEbicsNoPubKeyDigestsRequest(int revision,
-                                                                                String version,
-                                                                                org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header header,
+    public static EbicsNoPubKeyDigestsRequest createEbicsNoPubKeyDigestsRequest(org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Header header,
                                                                                 org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body body) {
         EbicsNoPubKeyDigestsRequest newEbicsNoPubKeyDigestsRequest = EbicsNoPubKeyDigestsRequest.Factory.newInstance();
         newEbicsNoPubKeyDigestsRequest.setRevision(1);
@@ -675,6 +653,7 @@ public class EbicsXmlFactory {
      * @param securityMedium the user security medium
      * @return <code>NoPubKeyDigestsRequestStaticHeaderType</code>
      */
+    @SuppressWarnings("java:S107")
     public static NoPubKeyDigestsRequestStaticHeaderType createNoPubKeyDigestsRequestStaticHeaderType(String hostId,
                                                                                                       byte[] nonce,
                                                                                                       Calendar timestamp,
@@ -702,9 +681,7 @@ public class EbicsXmlFactory {
      * @return the <code>org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body</code> XML object
      */
     public static org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body createDigestsRequestBody() {
-        org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body newBody = org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body.Factory.newInstance();
-
-        return newBody;
+        return org.kopi.ebics.schema.h005.EbicsNoPubKeyDigestsRequestDocument.EbicsNoPubKeyDigestsRequest.Body.Factory.newInstance();
     }
 
     /**
@@ -819,6 +796,7 @@ public class EbicsXmlFactory {
      * @param bankPubKeyDigests the <code>BankPubKeyDigests</code> element
      * @return the <code>StaticHeaderType</code> XML object
      */
+    @SuppressWarnings("java:S107")
     public static StaticHeaderType createStaticHeaderType(String hostId,
                                                           byte[] nonce,
                                                           int numSegments,
@@ -858,6 +836,7 @@ public class EbicsXmlFactory {
      * @param bankPubKeyDigests the <code>BankPubKeyDigests</code> element
      * @return the <code>StaticHeaderType</code> XML object
      */
+    @SuppressWarnings("java:S107")
     public static StaticHeaderType createStaticHeaderType(String hostId,
                                                           byte[] nonce,
                                                           String partnerId,
@@ -957,31 +936,33 @@ public class EbicsXmlFactory {
     public static BTUParamsType createBTUParamsType(UploadService uploadService) {
         BTUParamsType btuParamsType = BTUParamsType.Factory.newInstance();
         btuParamsType.setService(createRestrictedServiceType(uploadService));
+        if (uploadService.signatureFlag())
+            btuParamsType.setSignatureFlag(createSignatureFlag(uploadService.edsFlag()));
         return btuParamsType;
     }
 
     public static RestrictedServiceType createRestrictedServiceType(IEbicsService ebicsService) {
         RestrictedServiceType serviceType = RestrictedServiceType.Factory.newInstance();
         serviceType.setMsgName(createMessageType(ebicsService));
-        serviceType.setServiceName(ebicsService.getServiceName());
-        if (ebicsService.getScope() != null)
-            serviceType.setScope(ebicsService.getScope());
-        if (ebicsService.getContainerType() != null)
-            serviceType.setContainer(createMessageContainer(ebicsService.getContainerType()));
-        if (ebicsService.getServiceOption() != null)
-            serviceType.setServiceOption(ebicsService.getServiceOption());
+        serviceType.setServiceName(ebicsService.serviceName());
+        if (ebicsService.scope() != null)
+            serviceType.setScope(ebicsService.scope());
+        if (ebicsService.containerType() != null)
+            serviceType.setContainer(createMessageContainer(ebicsService.containerType()));
+        if (ebicsService.serviceOption() != null)
+            serviceType.setServiceOption(ebicsService.serviceOption());
         return serviceType;
     }
 
     public static MessageType createMessageType(IEbicsService ebicsService) {
         MessageType messageType = MessageType.Factory.newInstance();
-        messageType.setStringValue(ebicsService.getMessageName());
-        if (ebicsService.getMessageFormat() != null)
-            messageType.setFormat(ebicsService.getMessageFormat());
-        if (ebicsService.getMessageVariant() != null)
-            messageType.setVariant(ebicsService.getMessageVariant());
-        if (ebicsService.getMessageVersion() != null)
-            messageType.setVersion(ebicsService.getMessageVersion());
+        messageType.setStringValue(ebicsService.messageName());
+        if (ebicsService.messageFormat() != null)
+            messageType.setFormat(ebicsService.messageFormat());
+        if (ebicsService.messageVariant() != null)
+            messageType.setVariant(ebicsService.messageVariant());
+        if (ebicsService.messageVersion() != null)
+            messageType.setVersion(ebicsService.messageVersion());
         return messageType;
     }
 
@@ -989,11 +970,22 @@ public class EbicsXmlFactory {
         ContainerFlagType containerType = ContainerFlagType.Factory.newInstance();
         ContainerStringType.Enum containerTypeVal = ContainerStringType.Enum.forString(eContainerType);
         if (containerTypeVal != null) {
-            containerType.setContainerType(ContainerStringType.Enum.forString(eContainerType));
+            containerType.setContainerType(containerTypeVal);
         } else {
             throw new IllegalArgumentException(String.format("Unknown container type: '%s' Allowed types 'SVC', 'XML', 'ZIP'", eContainerType));
         }
         return containerType;
+    }
+
+    private static SignatureFlagType createSignatureFlag(boolean requestEDS) {
+        SignatureFlagType signatureFlagType = SignatureFlagType.Factory.newInstance();
+        //requestEDS attribute if used, then must be true.
+        //If not used, then whole attribute requestEDS must not be present
+        //It is forbidden to set requestEDS to false
+        if (requestEDS) {
+            signatureFlagType.setRequestEDS(true);
+        }
+        return signatureFlagType;
     }
 
     /**
@@ -1002,9 +994,7 @@ public class EbicsXmlFactory {
      * @return the <code>StandardOrderParamsType</code> XML object
      */
     public static StandardOrderParamsType createStandardOrderParamsType() {
-        StandardOrderParamsType newStandardOrderParamsType = StandardOrderParamsType.Factory.newInstance();
-
-        return newStandardOrderParamsType;
+        return StandardOrderParamsType.Factory.newInstance();
     }
 
     /**
@@ -1155,9 +1145,7 @@ public class EbicsXmlFactory {
      * @return the <code>org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Body</code> XML object
      */
     public static org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Body createEbicsRequestBody() {
-        org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Body newBody = org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Body.Factory.newInstance();
-
-        return newBody;
+        return org.kopi.ebics.schema.h005.EbicsRequestDocument.EbicsRequest.Body.Factory.newInstance();
     }
 
 
@@ -1172,22 +1160,6 @@ public class EbicsXmlFactory {
         newBody.setTransferReceipt(transferReceipt);
 
         return newBody;
-    }
-
-    /**
-     * Create the <code>DataTransferRequestType</code> XML object
-     *
-     * @param dataEncryptionInfo the <code>DataEncryptionInfo</code> element
-     * @param signatureData      the <code>SignatureData</code> element
-     * @return the <code>DataTransferRequestType</code> XML object
-     */
-    public static DataTransferRequestType createDataTransferRequestType(DataEncryptionInfo dataEncryptionInfo,
-                                                                        SignatureData signatureData) {
-        DataTransferRequestType newDataTransferRequestType = DataTransferRequestType.Factory.newInstance();
-        newDataTransferRequestType.setDataEncryptionInfo(dataEncryptionInfo);
-        newDataTransferRequestType.setSignatureData(signatureData);
-
-        return newDataTransferRequestType;
     }
 
     /**
@@ -1229,9 +1201,10 @@ public class EbicsXmlFactory {
     public static DataTransferRequestType createDataTransferRequestType(DataEncryptionInfo dataEncryptionInfo,
                                                                         SignatureData signatureData,
                                                                         DataDigestType dataDigest) {
-        DataTransferRequestType newDataTransferRequestType = createDataTransferRequestType(dataEncryptionInfo, signatureData);
+        DataTransferRequestType newDataTransferRequestType = DataTransferRequestType.Factory.newInstance();
+        newDataTransferRequestType.setDataEncryptionInfo(dataEncryptionInfo);
+        newDataTransferRequestType.setSignatureData(signatureData);
         newDataTransferRequestType.setDataDigest(dataDigest);
-
         return newDataTransferRequestType;
     }
 
@@ -1242,10 +1215,7 @@ public class EbicsXmlFactory {
      * @return the <code>org.kopi.ebics.schema.h005.DataTransferRequestType.OrderData</code> XML object
      */
     public static org.kopi.ebics.schema.h005.DataTransferRequestType.OrderData createTransferRequestTypeOrderData(byte[] orderDataValue) {
-        org.kopi.ebics.schema.h005.DataTransferRequestType.OrderData newOrderData = org.kopi.ebics.schema.h005.DataTransferRequestType.OrderData.Factory.newInstance();
-        newOrderData.setByteArrayValue(orderDataValue);
-
-        return newOrderData;
+        return createEbicsRequestOrderData(orderDataValue);
     }
 
     /**
@@ -1345,15 +1315,12 @@ public class EbicsXmlFactory {
      * @param newInstance the new {@link QName} of the instance
      * @param newType     the new schemaType. if null, cursors will be used and the resulting object
      *                    will be disconnected.
-     * @return if successful applied {@link XmlObject#substitute(QName, SchemaType)} a living object with a
-     * type == newType is returned. Otherwise null is returned as you can no longer manipulate the object.
      */
-    public static XmlObject qualifySubstitutionGroup(XmlObject xobj, QName newInstance, SchemaType newType) {
+    public static void qualifySubstitutionGroup(XmlObject xobj, QName newInstance, SchemaType newType) {
         if (newType != null) {
             XmlObject substitute = xobj.substitute(newInstance, newType);
-            if (substitute != null && substitute.schemaType() == newType
-                    && substitute.getDomNode().getLocalName().equals(newInstance.getLocalPart())) {
-                return substitute;
+            if (substitute != null && substitute.schemaType() == newType) {
+                substitute.getDomNode();
             }
         }
 
@@ -1366,7 +1333,6 @@ public class EbicsXmlFactory {
                 cursor.removeXml();
             }
         }
-        return null;
     }
 
     public static DataDigestType createDataDigestType(String signatureVersion, byte[] value) {

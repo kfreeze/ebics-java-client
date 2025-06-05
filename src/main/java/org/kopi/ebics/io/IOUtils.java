@@ -37,6 +37,10 @@ import org.kopi.ebics.interfaces.ContentFactory;
  */
 public class IOUtils {
 
+    private IOUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
      * Creates a directory from a root one
      *

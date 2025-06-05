@@ -28,13 +28,13 @@ public class EbicsException extends Exception {
 
     private static final long serialVersionUID = 2728820344946361669L;
 
-    private ReturnCode
-            returnCode;
+    private final ReturnCode returnCode;
 
     /**
      * A means to construct a server error.
      */
     public EbicsException() {
+        returnCode = null;
     }
 
     /**
@@ -44,6 +44,7 @@ public class EbicsException extends Exception {
      */
     public EbicsException(String message) {
         super(message);
+        returnCode = null;
     }
 
     /**
@@ -54,6 +55,7 @@ public class EbicsException extends Exception {
      */
     public EbicsException(String message, Throwable cause) {
         super(message, cause);
+        returnCode = null;
     }
 
     /**
@@ -61,8 +63,7 @@ public class EbicsException extends Exception {
      *
      * @param returnCode the ebics return code.
      */
-    public EbicsException(ReturnCode
-                                  returnCode) {
+    public EbicsException(ReturnCode returnCode) {
         this.returnCode = returnCode;
     }
 
@@ -73,8 +74,7 @@ public class EbicsException extends Exception {
      * @param returnCode the ebics return code.
      * @param message    the additional message.
      */
-    public EbicsException(ReturnCode
-                                  returnCode, String message) {
+    public EbicsException(ReturnCode returnCode, String message) {
         super(message);
         this.returnCode = returnCode;
     }

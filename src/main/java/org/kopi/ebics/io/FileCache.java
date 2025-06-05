@@ -20,6 +20,8 @@
 package org.kopi.ebics.io;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -40,7 +42,7 @@ public class FileCache {
      */
     public FileCache(boolean isTraceEnabled) {
         this.isTraceEnabled = isTraceEnabled;
-        cache = new Hashtable<String, File>();
+        cache = new Hashtable<>();
     }
 
     /**
@@ -63,26 +65,23 @@ public class FileCache {
      * Removes the given <code>java.io.file</code> from the cache.
      *
      * @param filename the file to remove
-     * @return True if the file is removed
      */
-    public boolean remove(String filename) {
+    public void remove(String filename) {
         if (!cache.containsKey(filename)) {
-            return false;
+            return;
         }
 
         cache.remove(filename);
-
-        return true;
     }
 
 
     /**
      * Clears the cache buffer
      */
-    public void clear() {
+    public void clear() throws IOException {
         if (isTraceEnabled) {
             for (File file : cache.values()) {
-                file.delete();
+                Files.delete(file.toPath());
             }
         }
 

@@ -50,7 +50,6 @@ import org.w3c.dom.Node;
  */
 public class SignedInfo extends DefaultEbicsRootElement {
 
-
     private static final long serialVersionUID = 4194924578678778580L;
     private final byte[] digest;
     private final EbicsUser user;
@@ -159,7 +158,7 @@ public class SignedInfo extends DefaultEbicsRootElement {
 
     @Override
     public byte[] toByteArray() {
-        addNamespaceDecl("", "http://www.ebics.org/H003");
+        addNamespaceDecl("", "urn:org:ebics:H005");
         setSaveSuggestedPrefixes("http://www.w3.org/2000/09/xmldsig#", "ds");
 
         return super.toByteArray();

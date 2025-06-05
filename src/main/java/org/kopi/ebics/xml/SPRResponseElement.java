@@ -31,11 +31,9 @@ import org.kopi.ebics.schema.h005.EbicsResponseDocument.EbicsResponse;
  *
  * @author Hachani
  */
-public class SPRResponseElement extends DefaultResponseElement {
-
+public class SPRResponseElement extends DefaultResponseElement<EbicsResponseDocument> {
 
     private static final long serialVersionUID = 8632578696636481642L;
-    private EbicsResponse response;
 
     /**
      * Constructs a new SPR response element.
@@ -51,8 +49,8 @@ public class SPRResponseElement extends DefaultResponseElement {
         String code;
         String text;
 
-        parse(factory);
-        response = ((EbicsResponseDocument) document).getEbicsResponse();
+        parse(EbicsResponseDocument.Factory);
+        EbicsResponse response = document.getEbicsResponse();
         code = response.getHeader().getMutable().getReturnCode();
         text = response.getHeader().getMutable().getReportText();
         returnCode = ReturnCode.toReturnCode(code, text);

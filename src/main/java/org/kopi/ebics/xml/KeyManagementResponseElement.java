@@ -32,7 +32,7 @@ import org.kopi.ebics.schema.h005.EbicsKeyManagementResponseDocument;
  *
  * @author hachani
  */
-public class KeyManagementResponseElement extends DefaultResponseElement {
+public class KeyManagementResponseElement extends DefaultResponseElement<EbicsKeyManagementResponseDocument> {
 
 
     private static final long serialVersionUID = -3556995397305708927L;
@@ -75,8 +75,8 @@ public class KeyManagementResponseElement extends DefaultResponseElement {
         String code;
         String text;
 
-        parse(factory);
-        response = ((EbicsKeyManagementResponseDocument) document).getEbicsKeyManagementResponse();
+        parse(EbicsKeyManagementResponseDocument.Factory);
+        response = document.getEbicsKeyManagementResponse();
         code = response.getHeader().getMutable().getReturnCode();
         text = response.getHeader().getMutable().getReportText();
         returnCode = ReturnCode.toReturnCode(code, text);

@@ -106,7 +106,7 @@ public class KeyManagement {
         int httpCode;
 
         sender = new HttpRequestSender(session);
-        request = new HIARequestElement(session, orderId);
+        request = new HIARequestElement(session);
         request.build();
         request.validate();
         session.getConfiguration().getTraceManager().trace(request);

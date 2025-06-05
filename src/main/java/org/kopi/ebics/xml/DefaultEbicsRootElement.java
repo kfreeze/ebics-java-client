@@ -48,14 +48,16 @@ import org.kopi.ebics.interfaces.EbicsOrderType;
 import org.kopi.ebics.interfaces.EbicsRootElement;
 import org.kopi.ebics.session.EbicsSession;
 import org.kopi.ebics.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public abstract class DefaultEbicsRootElement implements EbicsRootElement {
+public abstract class DefaultEbicsRootElement<T extends XmlObject> implements EbicsRootElement {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultEbicsRootElement.class);
 
     private static final long serialVersionUID = -3928957097145095177L;
 
-
-    private static Map<String, String> suggestedPrefixes;
-    protected XmlObject document;
+    private static final Map<String, String> suggestedPrefixes = new HashMap<>();
+    protected T document;
     protected EbicsSession session;
 
     /**
@@ -63,15 +65,19 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
      *
      * @param session the current ebics session
      */
-    public DefaultEbicsRootElement(EbicsSession session) {
+    protected DefaultEbicsRootElement(EbicsSession session) {
         this.session = session;
-        suggestedPrefixes = new HashMap<String, String>();
+        //is this really necessary ?
+        if (!suggestedPrefixes.isEmpty()) {
+            LOGGER.debug("Is this really wanted behaviour to be in this clear method?");
+            suggestedPrefixes.clear();
+        }
     }
 
     /**
      * Constructs a new default <code>EbicsRootElement</code>
      */
-    public DefaultEbicsRootElement() {
+    protected DefaultEbicsRootElement() {
         this(null);
     }
 
@@ -82,6 +88,7 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
      * @param prefix the namespace URI prefix
      */
     protected static void setSaveSuggestedPrefixes(String uri, String prefix) {
+        LOGGER.debug("Setting suggested prefixes {} for {}", prefix, uri);
         suggestedPrefixes.put(uri, prefix);
     }
 
@@ -112,21 +119,14 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
      * @throws EbicsException pretty print fails
      */
     public byte[] prettyPrint() throws EbicsException {
-        Document document;
-        XMLOutputter xmlOutputter;
-        SAXBuilder sxb;
-        ByteArrayOutputStream output;
-
-        sxb = new SAXBuilder();
-        output = new ByteArrayOutputStream();
-        xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
+        SAXBuilder sxb = new SAXBuilder();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
 
         try {
-            document = sxb.build(new InputStreamReader(new ByteArrayInputStream(toByteArray()), StandardCharsets.UTF_8));
-            xmlOutputter.output(document, output);
-        } catch (JDOMException e) {
-            throw new EbicsException(e.getMessage(), e);
-        } catch (IOException e) {
+            Document buildDoc = sxb.build(new InputStreamReader(new ByteArrayInputStream(toByteArray()), StandardCharsets.UTF_8));
+            xmlOutputter.output(buildDoc, output);
+        } catch (JDOMException | IOException e) {
             throw new EbicsException(e.getMessage(), e);
         }
 
@@ -145,18 +145,19 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
                                      String localPart,
                                      String prefix,
                                      String value) {
-        XmlCursor cursor;
 
-        cursor = document.newCursor();
-        while (cursor.hasNextToken()) {
-            if (cursor.isStart()) {
-                cursor.toNextToken();
-                cursor.insertAttributeWithValue(new QName(namespaceURI, localPart, prefix), value);
-                break;
-            } else {
-                cursor.toNextToken();
+        try (XmlCursor cursor = document.newCursor()) {
+            while (cursor.hasNextToken()) {
+                if (cursor.isStart()) {
+                    cursor.toNextToken();
+                    cursor.insertAttributeWithValue(new QName(namespaceURI, localPart, prefix), value);
+                    break;
+                } else {
+                    cursor.toNextToken();
+                }
             }
         }
+
     }
 
     @Override
@@ -177,23 +178,22 @@ public abstract class DefaultEbicsRootElement implements EbicsRootElement {
 
     @Override
     public void addNamespaceDecl(String prefix, String uri) {
-        XmlCursor cursor;
-
-        cursor = document.newCursor();
-        while (cursor.hasNextToken()) {
-            if (cursor.isStart()) {
-                cursor.toNextToken();
-                cursor.insertNamespace(prefix, uri);
-                break;
-            } else {
-                cursor.toNextToken();
+        try (XmlCursor cursor = document.newCursor()) {
+            while (cursor.hasNextToken()) {
+                if (cursor.isStart()) {
+                    cursor.toNextToken();
+                    cursor.insertNamespace(prefix, uri);
+                    break;
+                } else {
+                    cursor.toNextToken();
+                }
             }
         }
     }
 
     @Override
     public void validate() throws EbicsException {
-        ArrayList<XmlError> validationMessages = new ArrayList<XmlError>();
+        ArrayList<XmlError> validationMessages = new ArrayList<>();
         boolean isValid = document.validate(new XmlOptions().setErrorListener(validationMessages));
 
         if (!isValid) {

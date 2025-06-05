@@ -49,7 +49,6 @@ public abstract class InitializationRequestElement extends DefaultEbicsRootEleme
     protected final byte[] nonce;
     protected final SecretKeySpec keySpec;
     private final String name;
-    private final byte[] key;
     protected EbicsOrderType type;
 
     /**
@@ -58,18 +57,15 @@ public abstract class InitializationRequestElement extends DefaultEbicsRootEleme
      * @param session the current ebics session.
      * @param type    the initialization type (UPLOAD, DOWNLOAD).
      * @param name    the element name.
-     * @throws EbicsException
      */
-    public InitializationRequestElement(EbicsSession session,
+    protected InitializationRequestElement(EbicsSession session,
                                         EbicsOrderType type,
-                                        String name)
-            throws EbicsException {
+                                           String name) {
         super(session);
         this.type = type;
         this.name = name;
         nonce = Utils.generateNonce();
-        key = Utils.generateKey();
-        keySpec = new SecretKeySpec(key, "EAS");
+        keySpec = new SecretKeySpec(nonce, "EAS");
     }
 
     @Override
@@ -90,7 +86,7 @@ public abstract class InitializationRequestElement extends DefaultEbicsRootEleme
 
     @Override
     public byte[] toByteArray() {
-        setSaveSuggestedPrefixes("http://www.ebics.org/H003", "");
+        setSaveSuggestedPrefixes("urn:org:ebics:H005", "");
 
         return super.toByteArray();
     }
@@ -150,7 +146,7 @@ public abstract class InitializationRequestElement extends DefaultEbicsRootEleme
             Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding", BouncyCastleProvider.PROVIDER_NAME);
             cipher.init(Cipher.ENCRYPT_MODE, session.getBankE002Key());
 
-            return cipher.doFinal(key);
+            return cipher.doFinal(nonce);
         } catch (Exception e) {
             throw new EbicsException(e.getMessage(), e);
         }

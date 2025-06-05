@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
@@ -304,7 +305,7 @@ public final class Utils {
      */
     public static Date parse(String date) throws EbicsException {
         try {
-            return Constants.DEFAULT_DATE_FORMAT.parse(date);
+            return new SimpleDateFormat("yyyy-MM-dd").parse(date);
         } catch (ParseException e) {
             throw new EbicsException(e.getMessage(), e);
         }

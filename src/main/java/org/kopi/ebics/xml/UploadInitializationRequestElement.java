@@ -60,11 +60,12 @@ import org.kopi.ebics.utils.Utils;
  */
 public class UploadInitializationRequestElement extends InitializationRequestElement {
 
-
     private static final long serialVersionUID = -8083183483311283608L;
+    public static final String HTTP_WWW_W_3_ORG_2001_04_XMLENC_SHA_256 = "http://www.w3.org/2001/04/xmlenc#sha256";
     private final byte[] userData;
     private final Splitter splitter;
     private UserSignature userSignature;
+    private final transient UploadService uploadService;
 
     /**
      * Constructs a new <code>UInitializationRequestElement</code> for uploads initializations.
@@ -72,14 +73,14 @@ public class UploadInitializationRequestElement extends InitializationRequestEle
      * @param session   the current ebics session.
      * @param orderType the upload order type
      * @param userData  the user data to be uploaded
-     * @throws EbicsException
      */
     public UploadInitializationRequestElement(EbicsSession session,
                                               EbicsOrderType orderType,
-                                              byte[] userData)
-            throws EbicsException {
+                                              UploadService uploadService,
+                                              byte[] userData) {
         super(session, orderType, generateName(orderType));
         this.userData = userData;
+        this.uploadService = uploadService;
         splitter = new Splitter(userData);
     }
 
@@ -114,10 +115,10 @@ public class UploadInitializationRequestElement extends InitializationRequestEle
         product = EbicsXmlFactory.createProduct(session.getProduct().getLanguage(),
                 session.getProduct().getName(), session.getProduct().getInstituteID());
         authentication = EbicsXmlFactory.createAuthentication(session.getConfiguration().getAuthenticationVersion(),
-                "http://www.w3.org/2001/04/xmlenc#sha256",
+                HTTP_WWW_W_3_ORG_2001_04_XMLENC_SHA_256,
                 decodeHex(session.getUser().getPartner().getBank().getX002Digest()));
         encryption = EbicsXmlFactory.createEncryption(session.getConfiguration().getEncryptionVersion(),
-                "http://www.w3.org/2001/04/xmlenc#sha256",
+                HTTP_WWW_W_3_ORG_2001_04_XMLENC_SHA_256,
                 decodeHex(session.getUser().getPartner().getBank().getE002Digest()));
         bankPubKeyDigests = EbicsXmlFactory.createBankPubKeyDigests(authentication, encryption);
         adminOrderType = EbicsXmlFactory.createAdminOrderType(type.getCode());
@@ -126,7 +127,6 @@ public class UploadInitializationRequestElement extends InitializationRequestEle
 
         StaticHeaderOrderDetailsType orderDetails;
         if (type == OrderType.BTU) {
-            UploadService uploadService = new UploadService("SDD", "COR", "pain.008");
             BTUParamsType btuParamsType = EbicsXmlFactory.createBTUParamsType(uploadService);
 
             List<Parameter> parameters = new ArrayList<>();
@@ -151,7 +151,7 @@ public class UploadInitializationRequestElement extends InitializationRequestEle
             orderDetails = EbicsXmlFactory.createStaticHeaderOrderDetailsType(nextOrderId, adminOrderType,
                     standardOrderParamsType);
         }
-
+        dataDigest = EbicsXmlFactory.createDataDigestType(session.getConfiguration().getSignatureVersion(), null);
         xstatic = EbicsXmlFactory.createStaticHeaderType(session.getBankID(),
                 nonce,
                 splitter.getSegmentNumber(),
@@ -162,25 +162,9 @@ public class UploadInitializationRequestElement extends InitializationRequestEle
                 Calendar.getInstance(),
                 orderDetails,
                 bankPubKeyDigests);
-//        header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
-//        encryptionPubKeyDigest = EbicsXmlFactory.createEncryptionPubKeyDigest(session.getConfiguration().getEncryptionVersion(),
-//                "http://www.w3.org/2001/04/xmlenc#sha256",
-//                decodeHex(session.getUser().getPartner().getBank().getE002Digest()));
-//        signatureData = EbicsXmlFactory.createSignatureData(true, Utils.encrypt(Utils.zip(userSignature.prettyPrint()), keySpec));
-//
-//        dataEncryptionInfo = EbicsXmlFactory.createDataEncryptionInfo(true,
-//                encryptionPubKeyDigest,
-//                generateTransactionKey());
-//
-        dataDigest = EbicsXmlFactory.createDataDigestType(session.getConfiguration().getSignatureVersion(), null);
-//        dataTransfer = EbicsXmlFactory.createDataTransferRequestType(dataEncryptionInfo, signatureData, dataDigest);
-//        body = EbicsXmlFactory.createEbicsRequestBody(dataTransfer);
-//        request = EbicsXmlFactory.createEbicsRequest(header, body);
-//        document = EbicsXmlFactory.createEbicsRequestDocument(request);
-
         header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
         encryptionPubKeyDigest = EbicsXmlFactory.createEncryptionPubKeyDigest(session.getConfiguration().getEncryptionVersion(),
-                "http://www.w3.org/2001/04/xmlenc#sha256",
+                HTTP_WWW_W_3_ORG_2001_04_XMLENC_SHA_256,
                 decodeHex(session.getUser().getPartner().getBank().getE002Digest()));
         signatureData = EbicsXmlFactory.createSignatureData(true, Utils.encrypt(Utils.zip(userSignature.prettyPrint()), keySpec));
         dataEncryptionInfo = EbicsXmlFactory.createDataEncryptionInfo(true,

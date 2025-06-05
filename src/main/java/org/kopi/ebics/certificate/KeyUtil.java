@@ -46,7 +46,6 @@ public class KeyUtil {
      *
      * @param keyLen - key size
      * @return KeyPair the key pair
-     * @throws NoSuchAlgorithmException
      */
     public static KeyPair makeKeyPair(int keyLen) throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen;
@@ -72,29 +71,60 @@ public class KeyUtil {
      *
      * @param publicKey the public key
      * @return the digest value
-     * @throws EbicsException
+     * @throws EbicsException if a cryptographic error occurs during digest calculation
      */
     public static byte[] getKeyDigest(RSAPublicKey publicKey) throws EbicsException {
-        String modulus;
+        byte[] digest = getDigest(publicKey);
+        return new String(Hex.encodeHex(digest, false)).getBytes();
+    }
+
+    /**
+     * Computes the raw SHA-256 digest of a given RSA public key.
+     * <p>
+     * The input for the hash function is a string composed of the hexadecimal representations
+     * of the exponent and the modulus of the RSA public key, separated by a space.
+     * The modulus is preprocessed by removing the first byte (typically a leading zero added
+     * by {@code BigInteger.toByteArray()}).
+     * If the resulting string starts with a '0', the first character is stripped off.
+     * </p>
+     * <p>
+     * The SHA-256 digest is computed using the BouncyCastle ("BC") provider and returned as a raw byte array.
+     * </p>
+     *
+     * @param publicKey the RSA public key from which to compute the digest; must not be {@code null}
+     * @return the SHA-256 digest of the constructed key string as a byte array
+     * @throws EbicsException if a cryptographic error occurs during digest calculation
+     */
+    public static byte[] getDigest(RSAPublicKey publicKey) throws EbicsException {
         String exponent;
+        String modulus;
         String hash;
         byte[] digest;
 
+        // Convert the RSA public exponent to hexadecimal
         exponent = Hex.encodeHexString(publicKey.getPublicExponent().toByteArray());
+
+        // Convert the RSA modulus to hexadecimal after removing the first byte
         modulus = Hex.encodeHexString(removeFirstByte(publicKey.getModulus().toByteArray()));
+
+        // Concatenate exponent and modulus with a space separator
         hash = exponent + " " + modulus;
 
+        // Remove a leading '0' if present (implementation detail)
         if (hash.charAt(0) == '0') {
             hash = hash.substring(1);
         }
 
         try {
+            // Compute SHA-256 digest using BouncyCastle and ASCII encoding
             digest = MessageDigest.getInstance("SHA-256", "BC").digest(hash.getBytes(StandardCharsets.US_ASCII));
         } catch (GeneralSecurityException e) {
+            // Wrap and propagate the exception in a domain-specific EbicsException
             throw new EbicsException(e.getMessage(), e);
         }
 
-        return new String(Hex.encodeHex(digest, false)).getBytes();
+        // Return raw digest byte array (32 bytes for SHA-256)
+        return digest;
     }
 
     /**

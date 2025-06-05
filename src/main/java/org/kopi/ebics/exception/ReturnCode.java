@@ -266,8 +266,8 @@ public class ReturnCode implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof ReturnCode) {
-            return this.code.equals(((ReturnCode) obj).code);
+        if (obj instanceof ReturnCode returnCode) {
+            return this.code.equals(returnCode.code);
         }
 
         return false;

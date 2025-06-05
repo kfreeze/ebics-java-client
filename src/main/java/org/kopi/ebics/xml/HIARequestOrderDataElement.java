@@ -78,7 +78,6 @@ public class HIARequestOrderDataElement extends DefaultEbicsRootElement {
         return "HIARequestOrderData.xml";
     }
 
-
     @Override
     public byte[] toByteArray() {
         addNamespaceDecl("ds", "http://www.w3.org/2000/09/xmldsig#");

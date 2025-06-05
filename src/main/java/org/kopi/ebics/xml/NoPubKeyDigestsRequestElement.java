@@ -68,9 +68,7 @@ public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
 
         try {
             return MessageDigest.getInstance("SHA-256", "BC").digest(Utils.canonize(toByteArray()));
-        } catch (NoSuchAlgorithmException e) {
-            throw new EbicsException(e.getMessage(), e);
-        } catch (NoSuchProviderException e) {
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
             throw new EbicsException(e.getMessage(), e);
         }
     }
@@ -117,10 +115,7 @@ public class NoPubKeyDigestsRequestElement extends DefaultEbicsRootElement {
         mutable = EbicsXmlFactory.createEmptyMutableHeaderType();
         header = EbicsXmlFactory.createDigestsRequestHeader(true, mutable, xstatic);
         body = EbicsXmlFactory.createDigestsRequestBody();
-        request = EbicsXmlFactory.createEbicsNoPubKeyDigestsRequest(session.getConfiguration().getRevision(),
-                session.getConfiguration().getVersion(),
-                header,
-                body);
+        request = EbicsXmlFactory.createEbicsNoPubKeyDigestsRequest(header, body);
         document = EbicsXmlFactory.createEbicsNoPubKeyDigestsRequestDocument(request);
     }
 

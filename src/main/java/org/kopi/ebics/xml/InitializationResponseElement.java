@@ -32,7 +32,7 @@ import org.kopi.ebics.schema.h005.EbicsResponseDocument.EbicsResponse;
  *
  * @author Hachani
  */
-public class InitializationResponseElement extends DefaultResponseElement {
+public class InitializationResponseElement extends DefaultResponseElement<EbicsResponseDocument> {
 
     private static final long serialVersionUID = 7684048385353175772L;
 
@@ -54,23 +54,23 @@ public class InitializationResponseElement extends DefaultResponseElement {
         this.orderType = orderType;
     }
 
-  @Override
-  public void build() throws EbicsException {
-    parse(factory);
-    response = ((EbicsResponseDocument)document).getEbicsResponse();
-    String code = response.getHeader().getMutable().getReturnCode();
-    String text = response.getHeader().getMutable().getReportText();
-    returnCode = ReturnCode.toReturnCode(code, text);
-    checkReturnCode(returnCode);
-    processBodyReturnCode();
-    transactionId = response.getHeader().getStatic().getTransactionID();
-  }
+    @Override
+    public void build() throws EbicsException {
+        parse(EbicsResponseDocument.Factory);
+        response = document.getEbicsResponse();
+        String code = response.getHeader().getMutable().getReturnCode();
+        String text = response.getHeader().getMutable().getReportText();
+        returnCode = ReturnCode.toReturnCode(code, text);
+        checkReturnCode(returnCode);
+        processBodyReturnCode();
+        transactionId = response.getHeader().getStatic().getTransactionID();
+    }
 
-  protected void processBodyReturnCode() throws EbicsException {
-      String bodyRetCode = response.getBody().getReturnCode().getStringValue();
-      ReturnCode returnCode = ReturnCode.toReturnCode(bodyRetCode, "");
-      checkReturnCode(returnCode);
-  }
+    protected void processBodyReturnCode() throws EbicsException {
+        String bodyRetCode = response.getBody().getReturnCode().getStringValue();
+        ReturnCode returnCode = ReturnCode.toReturnCode(bodyRetCode, "");
+        checkReturnCode(returnCode);
+    }
 
     /**
      * Returns the transaction ID.

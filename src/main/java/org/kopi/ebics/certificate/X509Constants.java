@@ -24,27 +24,31 @@ package org.kopi.ebics.certificate;
  *
  * @author hachani
  */
-public interface X509Constants {
+public class X509Constants {
+
+    private X509Constants() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
      * Certificates key usage
      */
-    int SIGNATURE_KEY_USAGE = 1;
-    int AUTHENTICATION_KEY_USAGE = 2;
-    int ENCRYPTION_KEY_USAGE = 3;
+    public static final int SIGNATURE_KEY_USAGE = 1;
+    public static final int AUTHENTICATION_KEY_USAGE = 2;
+    public static final int ENCRYPTION_KEY_USAGE = 3;
 
     /**
      * Certificate signature algorithm
      */
-    String SIGNATURE_ALGORITHM = "SHA256WithRSAEncryption";
+    public static final String SIGNATURE_ALGORITHM = "SHA256WithRSAEncryption";
 
     /**
      * Default days validity of a certificate
      */
-    int DEFAULT_DURATION = 10 * 365;
+    public static final int DEFAULT_DURATION = 10 * 365;
 
     /**
      * EBICS key size
      */
-    int EBICS_KEY_SIZE = 2048;
+    public static final int EBICS_KEY_SIZE = 2048;
 }

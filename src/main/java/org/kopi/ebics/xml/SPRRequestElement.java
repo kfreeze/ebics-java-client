@@ -51,6 +51,7 @@ import org.kopi.ebics.utils.Utils;
 public class SPRRequestElement extends InitializationRequestElement {
 
     private static final long serialVersionUID = -6742241777786111337L;
+    public static final String HTTP_WWW_W_3_ORG_2001_04_XMLENC_SHA_256 = "http://www.w3.org/2001/04/xmlenc#sha256";
 
     /**
      * Constructs a new SPR request element.
@@ -93,10 +94,10 @@ public class SPRRequestElement extends InitializationRequestElement {
         product = EbicsXmlFactory.createProduct(session.getProduct().getLanguage(),
                 session.getProduct().getName(), session.getProduct().getInstituteID());
         authentication = EbicsXmlFactory.createAuthentication(session.getConfiguration().getAuthenticationVersion(),
-                "http://www.w3.org/2001/04/xmlenc#sha256",
+                HTTP_WWW_W_3_ORG_2001_04_XMLENC_SHA_256,
                 decodeHex(session.getUser().getPartner().getBank().getX002Digest()));
         encryption = EbicsXmlFactory.createEncryption(session.getConfiguration().getEncryptionVersion(),
-                "http://www.w3.org/2001/04/xmlenc#sha256",
+                HTTP_WWW_W_3_ORG_2001_04_XMLENC_SHA_256,
                 decodeHex(session.getUser().getPartner().getBank().getE002Digest()));
         bankPubKeyDigests = EbicsXmlFactory.createBankPubKeyDigests(authentication, encryption);
         adminOrderType = EbicsXmlFactory.createAdminOrderType(type.getCode());
@@ -116,7 +117,7 @@ public class SPRRequestElement extends InitializationRequestElement {
                 bankPubKeyDigests);
         header = EbicsXmlFactory.createEbicsRequestHeader(true, mutable, xstatic);
         encryptionPubKeyDigest = EbicsXmlFactory.createEncryptionPubKeyDigest(session.getConfiguration().getEncryptionVersion(),
-                "http://www.w3.org/2001/04/xmlenc#sha256",
+                HTTP_WWW_W_3_ORG_2001_04_XMLENC_SHA_256,
                 decodeHex(session.getUser().getPartner().getBank().getE002Digest()));
         signatureData = EbicsXmlFactory.createSignatureData(true, Utils.encrypt(Utils.zip(userSignature.prettyPrint()), keySpec));
         dataEncryptionInfo = EbicsXmlFactory.createDataEncryptionInfo(true,

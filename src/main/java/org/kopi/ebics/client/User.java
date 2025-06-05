@@ -109,13 +109,12 @@ public class User implements EbicsUser, Savable {
      * @param ois              the object stream
      * @param passwordCallback a callback-handler that supplies us with the password.
      * @throws IOException
-     * @throws GeneralSecurityException if the supplies password is wrong.
      * @throws ClassNotFoundException
      */
     public User(EbicsPartner partner,
                 ObjectInputStream ois,
                 PasswordCallback passwordCallback)
-            throws IOException, GeneralSecurityException, ClassNotFoundException {
+            throws IOException, ClassNotFoundException {
         this.partner = partner;
         this.passwordCallback = passwordCallback;
         this.userId = ois.readUTF();
@@ -153,7 +152,7 @@ public class User implements EbicsUser, Savable {
         this.name = name;
         this.passwordCallback = passwordCallback;
         loadCertificates(keystorePath);
-        this.dn = a005Certificate.getSubjectDN().getName();
+        this.dn = a005Certificate.getSubjectX500Principal().getName();
         needSave = true;
     }
 
@@ -172,16 +171,13 @@ public class User implements EbicsUser, Savable {
         ByteArrayOutputStream output;
 
         output = new ByteArrayOutputStream();
-        for (int i = 0; i < buf.length; i++) {
-            switch (buf[i]) {
-                case '\r':
-                case '\n':
-                case 0x1A: // CTRL-Z / EOF
+        for (byte b : buf) {
+            switch (b) {
+                case '\r', '\n', 0x1A: // CTRL-Z / EOF
                     // ignore this character
                     break;
-
                 default:
-                    output.write(buf[i]);
+                    output.write(b);
             }
         }
 
@@ -309,19 +305,19 @@ public class User implements EbicsUser, Savable {
                           String email,
                           String country,
                           String organization) {
-        StringBuffer buffer;
+        StringBuilder buffer;
 
-        buffer = new StringBuffer();
+        buffer = new StringBuilder();
 
-        buffer.append("CN=" + name);
+        buffer.append("CN=").append(name);
         if (country != null) {
-            buffer.append(", " + "C=" + country.toUpperCase());
+            buffer.append(", " + "C=").append(country.toUpperCase());
         }
         if (organization != null) {
-            buffer.append(", " + "O=" + organization);
+            buffer.append(", " + "O=").append(organization);
         }
         if (email != null) {
-            buffer.append(", " + "E=" + email);
+            buffer.append(", " + "E=").append(email);
         }
 
         return buffer.toString();

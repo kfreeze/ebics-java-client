@@ -31,7 +31,7 @@ import org.kopi.ebics.schema.h005.EbicsResponseDocument.EbicsResponse;
  *
  * @author Hachani
  */
-public class ReceiptResponseElement extends DefaultResponseElement {
+public class ReceiptResponseElement extends DefaultResponseElement<EbicsResponseDocument> {
 
     private static final long serialVersionUID = 2994403708414164919L;
 
@@ -51,8 +51,8 @@ public class ReceiptResponseElement extends DefaultResponseElement {
         String text;
         EbicsResponse response;
 
-        parse(factory);
-        response = ((EbicsResponseDocument) document).getEbicsResponse();
+        parse(EbicsResponseDocument.Factory);
+        response = document.getEbicsResponse();
         code = response.getHeader().getMutable().getReturnCode();
         text = response.getHeader().getMutable().getReportText();
         returnCode = ReturnCode.toReturnCode(code, text);

@@ -46,11 +46,7 @@ public class Messages {
         try {
             return ResourceBundle.getBundle(bundleName, locale);
         } catch (MissingResourceException e) {
-            try {
-                return ResourceBundle.getBundle(bundleName, Locale.ENGLISH);
-            } catch (MissingResourceException e2) {
-                throw new RuntimeException(e2);
-            }
+            return ResourceBundle.getBundle(bundleName, Locale.ENGLISH);
         }
     }
 
@@ -66,13 +62,9 @@ public class Messages {
      * @return the corresponding key value
      */
     public String getString(String key, Object... arguments) {
-        try {
-            MessageFormat messageFormat = new MessageFormat(resourceBundle.getString(key));
-            messageFormat.setLocale(locale);
-            return messageFormat.format(arguments);
-        } catch (MissingResourceException e) {
-            throw new RuntimeException(e);
-        }
+        MessageFormat messageFormat = new MessageFormat(resourceBundle.getString(key));
+        messageFormat.setLocale(locale);
+        return messageFormat.format(arguments);
     }
 
     /**
@@ -82,10 +74,6 @@ public class Messages {
      * @return the corresponding key value
      */
     public String getString(String key) {
-        try {
-            return resourceBundle.getString(key);
-        } catch (MissingResourceException e) {
-            throw new RuntimeException(e);
-        }
+        return resourceBundle.getString(key);
     }
 }
