@@ -199,7 +199,7 @@ public class DirectDebitDocumentBuilder extends SepaXmlDocumentBuilder {
         serviceLevel8Choice.setCd("SEPA");
         paymentType.getSvcLvlList().add(serviceLevel8Choice);
         LocalInstrument2Choice localInstrument2Choice = LocalInstrument2Choice.Factory.newInstance();
-        localInstrument2Choice.setCd("SEPA");
+        localInstrument2Choice.setCd("CORE");
         paymentType.setLclInstrm(localInstrument2Choice);
         paymentType.setSeqTp(mandateType.getSepaSequenceType3Code());
         return paymentType;
